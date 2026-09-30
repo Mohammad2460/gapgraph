@@ -1,0 +1,53 @@
+{
+  "quiz_id": "demo-quiz",
+  "answers": [
+    {
+      "question_id": "q1",
+      "choice_index": 3,
+      "confidence": 0.24,
+      "time_ms": 3029
+    },
+    {
+      "question_id": "q2",
+      "choice_index": 0,
+      "confidence": 0.1,
+      "time_ms": 4952
+    },
+    {
+      "question_id": "q3",
+      "choice_index": 3,
+      "confidence": 0.26,
+      "time_ms": 3092
+    },
+    {
+      "question_id": "q4",
+      "choice_index": 2,
+      "confidence": 0.19,
+      "time_ms": 2647
+    },
+    {
+      "question_id": "q5",
+      "choice_index": 1,
+      "confidence": 0.32,
+      "time_ms": 4947
+    },
+    {
+      "question_id": "q6",
+      "choice_index": 1,
+      "confidence": 0.15,
+      "time_ms": 5738
+    },
+    {
+      "question_id": "q7",
+      "choice_index": 3,
+      "confidence": 0.19,
+      "time_ms": 4617
+    },
+    {
+      "question_id": "q8",
+      "choice_index": 0,
+      "confidence": 0.15,
+      "time_ms": 5123
+    }
+  ]
+}
