@@ -51,7 +51,7 @@ With 2 people, Member 2 does B1–B5 first (the differentiator), then C tasks.
 - [x] **B4** (H5–6) `learner/path.py::suggest_next_topics`: topological order of the gap subgraph; careless items last; "ready to learn" when no gaps. ✅ `test_b4_next_topics_start_with_root`
 - [x] **B5** (H6–6.5) Verify `learner/service.py::assess` end to end; set `MOCK_LEARNER=false`. ✅ `test_b5_full_assessment` **→ M2**
 - [x] **B6** (stretch) Adaptive probing: next question targets the failed concept's weakest prerequisite (needs a `contract:` PR for `POST /api/quiz/{id}/next`).
-- [ ] **B7** (stretch) Graph embeddings over time: spectral/node2vec-style node embeddings (numpy) + a per-learner mastery history; similar concepts share evidence across quiz attempts.
+- [x] **B7** (stretch) Graph embeddings over time: spectral/node2vec-style node embeddings (numpy) + a per-learner mastery history; similar concepts share evidence across quiz attempts.
 
 ## C — Frontend  (`frontend/src/**`)
 

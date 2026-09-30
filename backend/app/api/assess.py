@@ -5,6 +5,7 @@ from fastapi import APIRouter, HTTPException
 from app.config import settings
 from app.fixtures import sample_assessment, sample_graph, sample_next_question
 from app.learner.adaptive import next_question
+from app.learner.embeddings import apply_history
 from app.learner.service import assess
 from app.models import AssessmentResult, AssessRequest, NextQuestion, NextQuestionRequest
 from app.store import store
@@ -25,7 +26,10 @@ async def assess_quiz(req: AssessRequest) -> AssessmentResult:
         result = sample_assessment()
         result.quiz_id, result.graph_id = quiz.quiz_id, graph.id
         return result
-    return assess(graph, quiz, req.answers)
+    result = assess(graph, quiz, req.answers)
+    if req.learner_id:  # B7 history is opt-in and per learner
+        result = apply_history(graph, result, req.learner_id)
+    return result
 
 
 @router.post("/quiz/{quiz_id}/next", response_model=NextQuestion)

@@ -60,6 +60,12 @@ export interface Answer {
 }
 
 // B6 adaptive probing: POST /api/quiz/{quiz_id}/next
+export interface AssessRequest {
+  quiz_id: string
+  answers: Answer[]
+  learner_id?: string | null // opt in to B7 per-learner history
+}
+
 export interface NextQuestionRequest {
   answers: Answer[] // answered so far, in order
 }
