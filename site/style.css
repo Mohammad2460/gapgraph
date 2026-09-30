@@ -91,6 +91,15 @@ h2 { font-size: 1.75rem; margin-top: 0; }
 .dot.gap { background: var(--gap); }
 .dot.careless { background: var(--careless); }
 
+/* Glossary */
+.glossary dt {
+  font-weight: 700;
+  font-size: 1.15rem;
+  margin-top: 1.5rem;
+  color: var(--gap);
+}
+.glossary dd { margin: 0.25rem 0 0; max-width: 42rem; }
+
 /* 7. Team + footer */
 .team { padding-left: 1.2rem; }
 footer {
