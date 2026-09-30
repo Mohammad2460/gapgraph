@@ -53,7 +53,7 @@ export function GraphView({
   const [size, setSize] = useState({ width: 600, height: 500 })
   // Reuse node objects across renders so existing nodes keep their positions
   // while new ones stream in.
-  const nodeCache = useRef(new Map<string, Node>())
+  const [nodeCache] = useState(() => new Map<string, Node>())
   // When each node was first drawn, for the pop-in animation.
   const born = useRef(new Map<string, number>())
   const colors = useMemo(() => clusterColors(concepts.map((c) => c.cluster)), [concepts])
@@ -75,13 +75,13 @@ export function GraphView({
 
   const data = useMemo(() => {
     const nodes = concepts.map((c) => {
-      const cached = nodeCache.current.get(c.id) ?? { id: c.id, name: c.name, importance: c.importance, cluster: c.cluster }
-      nodeCache.current.set(c.id, cached)
+      const cached = nodeCache.get(c.id) ?? { id: c.id, name: c.name, importance: c.importance, cluster: c.cluster }
+      nodeCache.set(c.id, cached)
       return cached
     })
     const links: Link[] = edges.map((e) => ({ source: e.source, target: e.target, key: `${e.source}->${e.target}` }))
     return { nodes, links }
-  }, [concepts, edges])
+  }, [concepts, edges, nodeCache])
 
   const pathEdges = useMemo(() => {
     const s = new Set<string>()
@@ -95,9 +95,9 @@ export function GraphView({
   // Glide to the selected node (e.g. from the "Study next" list).
   useEffect(() => {
     if (!selectedId) return
-    const n = nodeCache.current.get(selectedId)
+    const n = nodeCache.get(selectedId)
     if (n?.x !== undefined && n.y !== undefined) fg.current?.centerAt(n.x, n.y, 600)
-  }, [selectedId])
+  }, [selectedId, nodeCache])
 
   return (
     <div ref={box} className="h-full w-full">
