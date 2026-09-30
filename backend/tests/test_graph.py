@@ -1,7 +1,10 @@
 """Pillar A acceptance tests. Remove the xfail marker once each task is done."""
 
+import asyncio
+
 import pytest
 
+from app.extraction import concepts as concepts_mod
 from app.fixtures import sample_chapter
 from app.graph.builder import GraphBuilder
 from app.ingest.chunker import chunk
@@ -15,6 +18,24 @@ def test_a1_parse_and_chunk():
     chunks = chunk(text, max_chars=1500)
     assert 2 <= len(chunks) <= 6
     assert all(len(c) <= 1500 for c in chunks)
+
+
+def test_a2_extract_chunk_sends_known_ids_and_returns_result(monkeypatch):
+    calls = {}
+    result = ExtractionResult(concepts=[Concept(id="x", name="X", definition="x")], edges=[])
+
+    async def fake_structured(system, user, schema, **kw):
+        calls.update(system=system, user=user, schema=schema)
+        return result
+
+    monkeypatch.setattr(concepts_mod.llm, "structured", fake_structured)
+    known = [Concept(id="chain_rule", name="Chain Rule", definition="d")]
+    out = asyncio.run(concepts_mod.extract_chunk("Backprop uses the chain rule.", known))
+
+    assert out is result
+    assert calls["schema"] is ExtractionResult
+    assert "chain_rule: Chain Rule" in calls["user"]
+    assert "Backprop uses the chain rule." in calls["user"]
 
 
 @pytest.mark.xfail(reason="TODO A3", raises=NotImplementedError, strict=True)
