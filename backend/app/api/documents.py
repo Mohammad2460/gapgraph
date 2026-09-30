@@ -7,8 +7,9 @@ from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 from sse_starlette.sse import EventSourceResponse
 
 from app.config import settings
+from app.extraction import cache
 from app.extraction.pipeline import build_graph_stream, mock_stream
-from app.fixtures import sample_graph
+from app.fixtures import sample_chapter, sample_graph
 from app.models import DocumentCreated, Graph
 from app.store import Document, store
 
@@ -24,6 +25,8 @@ async def create_document(
     if file is None and not text:
         raise HTTPException(400, "Send a file or text")
     raw = await file.read() if file else text.encode()
+    if raw.strip() == b"demo":  # frontend "Use demo chapter" button -> the real sample chapter
+        raw = sample_chapter().encode()
     filename = file.filename if file else None
     doc = Document(
         doc_id=uuid.uuid4().hex[:8],
@@ -42,11 +45,19 @@ async def stream_document(doc_id: str) -> EventSourceResponse:
         raise HTTPException(404, "Unknown document")
 
     async def events():
-        source = mock_stream() if settings.mock_extraction else build_graph_stream(doc)
+        cached = None if settings.mock_extraction else cache.load_graph(doc.raw)
+        if settings.mock_extraction:
+            source = mock_stream()
+        elif cached is not None:  # demo safety: same upload seen before -> replay, no API call
+            source = mock_stream(delay=0.12, graph=cached)
+        else:
+            source = build_graph_stream(doc)
         try:
             async for name, payload in source:
                 if name == "done":
                     graph = Graph.model_validate(payload)
+                    if not settings.mock_extraction and cached is None:
+                        cache.save(doc.raw, graph)
                     graph.id, graph.title = doc.doc_id, doc.title
                     store.graphs[doc.doc_id] = graph
                     payload = graph.model_dump()

@@ -1,0 +1,118 @@
+{
+  "quiz_id": "4bb04aa8",
+  "graph_id": "a3a1d8f7",
+  "questions": [
+    {
+      "id": "q1",
+      "concept_id": "loss_function",
+      "prompt": "A model predicts house prices, and you compare each prediction with the actual sale price. What does the loss function quantify?",
+      "options": [
+        "How far the predictions are from the true prices",
+        "How many layers the model contains",
+        "How quickly the input features change",
+        "How many predictions the model can make"
+      ],
+      "difficulty": "easy",
+      "answer_index": 0,
+      "explanation": "A loss function measures the discrepancy between a model’s predictions and the true values."
+    },
+    {
+      "id": "q2",
+      "concept_id": "neural_network",
+      "prompt": "Which description best identifies a neural network?",
+      "options": [
+        "A model that stacks perceptrons into layers",
+        "A function that measures prediction errors",
+        "A method that adjusts weights using loss gradients",
+        "A single rule that maps an input directly to an output without layers"
+      ],
+      "difficulty": "easy",
+      "answer_index": 0,
+      "explanation": "A neural network is built by stacking perceptrons into layers."
+    },
+    {
+      "id": "q3",
+      "concept_id": "activation_function",
+      "prompt": "Why can adding a ReLU activation between perceptron layers help a network model curved decision boundaries?",
+      "options": [
+        "It introduces non-linearity by transforming each perceptron’s weighted sum",
+        "It directly measures the discrepancy between predictions and targets",
+        "It computes the vector of partial derivatives for all weights",
+        "It guarantees that every layer has the same weighted sum"
+      ],
+      "difficulty": "medium",
+      "answer_index": 0,
+      "explanation": "An activation function transforms the weighted sum and can add the non-linearity needed to model curved boundaries."
+    },
+    {
+      "id": "q4",
+      "concept_id": "derivative",
+      "prompt": "A small change in an input causes a large change in a function’s output near a particular point. Which quantity describes this local rate of change?",
+      "options": [
+        "The derivative",
+        "The loss function",
+        "The neural network’s depth",
+        "The activation function’s layer count"
+      ],
+      "difficulty": "easy",
+      "answer_index": 0,
+      "explanation": "A derivative measures how quickly a function’s output changes when its input changes slightly."
+    },
+    {
+      "id": "q5",
+      "concept_id": "gradient",
+      "prompt": "For a loss that depends on several network weights, what does its gradient contain?",
+      "options": [
+        "The partial derivative of the loss with respect to each weight",
+        "The prediction error for each training example only",
+        "The sequence of perceptrons in each layer",
+        "The activation values after applying each function"
+      ],
+      "difficulty": "medium",
+      "answer_index": 0,
+      "explanation": "The gradient is the vector of partial derivatives of the loss with respect to each parameter or weight."
+    },
+    {
+      "id": "q6",
+      "concept_id": "chain_rule",
+      "prompt": "Suppose a network computes y = f(g(x)). To find how y changes with x, how does the chain rule combine the derivatives?",
+      "options": [
+        "Multiply f'(g(x)) by g'(x)",
+        "Add f'(g(x)) and g'(x)",
+        "Use only f'(g(x)) because g is nested inside f",
+        "Use only g'(x) because it is closest to x"
+      ],
+      "difficulty": "hard",
+      "answer_index": 0,
+      "explanation": "For a composition, the chain rule multiplies the outer derivative evaluated at the inner function by the inner derivative."
+    },
+    {
+      "id": "q7",
+      "concept_id": "backpropagation",
+      "prompt": "A network has many layers, and training requires the loss gradient for every weight. What does backpropagation do?",
+      "options": [
+        "Applies the chain rule backward through the layers to compute those gradients",
+        "Moves weights opposite the gradient without computing it",
+        "Measures prediction discrepancy but does not use the network’s layers",
+        "Transforms each weighted sum to add non-linearity"
+      ],
+      "difficulty": "hard",
+      "answer_index": 0,
+      "explanation": "Backpropagation computes loss gradients for network weights by applying the chain rule backward through the layers."
+    },
+    {
+      "id": "q8",
+      "concept_id": "gradient_descent",
+      "prompt": "After computing a loss gradient, which update is a gradient descent step?",
+      "options": [
+        "Adjust the weights a small amount in the direction opposite the gradient",
+        "Adjust the weights in the direction of the gradient to increase the loss",
+        "Change the network’s layers until the gradient is zero without updating weights",
+        "Replace the loss with the gradient vector"
+      ],
+      "difficulty": "medium",
+      "answer_index": 0,
+      "explanation": "Gradient descent reduces loss by repeatedly taking small weight steps opposite the gradient."
+    }
+  ]
+}
