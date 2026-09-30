@@ -141,7 +141,7 @@ export default function App() {
 
           {selectedConcept && (
             <div className="rounded-lg border border-slate-200 p-3">
-              <NodeDetail concept={selectedConcept} concepts={stream.concepts} edges={stream.edges} mastery={mastery?.[selectedConcept.id]} />
+              <NodeDetail concept={selectedConcept} concepts={stream.concepts} edges={stream.edges} mastery={mastery?.[selectedConcept.id]} onSelect={setSelected} />
             </div>
           )}
         </aside>
