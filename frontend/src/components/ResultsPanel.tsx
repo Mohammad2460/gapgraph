@@ -48,7 +48,10 @@ export function ResultsPanel({ result, concepts, activeGap, onSelectGap, onSelec
         <ol className="space-y-1">
           {result.next_topics.map((t) => (
             <li key={t.concept_id}>
-              <button onClick={() => onSelectConcept(t.concept_id)} className="text-left">
+              <button
+                onClick={() => onSelectConcept(t.concept_id)}
+                className="block w-full rounded-lg border border-slate-200 p-2 text-left hover:bg-slate-50"
+              >
                 <span className="font-medium">
                   {t.order}. {name(t.concept_id)}
                 </span>
