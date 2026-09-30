@@ -9,6 +9,10 @@ from app.models import Answer, AssessmentResult, Graph, QuestionResult, QuizKey,
 
 def assess(graph: Graph, quiz: QuizKey, answers: list[Answer]) -> AssessmentResult:
     by_id = {q.id: q for q in quiz.questions}
+    # A retried submission replaces the earlier response to the same question.
+    answers = list({
+        answer.question_id: answer for answer in answers if answer.question_id in by_id
+    }.values())
     per_question = [
         QuestionResult(
             question_id=a.question_id,
