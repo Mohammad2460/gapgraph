@@ -4,11 +4,12 @@ H0 = hackathon start. Tick boxes as you merge. Ownership rules: see `CLAUDE.md`.
 
 ## Team split
 
-| Team size | Member 1 | Member 2 | Member 3 | Member 4 |
-|---|---|---|---|---|
-| **2** | Pillar A (AI & Graph) | Pillar B (Learner) + Pillar C polish | — | — |
-| **3** | Pillar A | Pillar B | Pillar C | — |
+| Team size | Member 1 | Member 2 | Member 3 | Member 4 | Member 5 |
+|---|---|---|---|---|---|
+| **2** | Pillar A (AI & Graph) | Pillar B (Learner) + Pillar C polish | — | — | — |
+| **3** | Pillar A | Pillar B | Pillar C | — | — |
 | **4** | Pillar A | Pillar B | Pillar C | Demo data, PPT, demo script, QA, stretch goals |
+| **5** | Pillar A | Pillar B | Pillar C | Pillar D (demo & pitch) | **Pillar E (beginner)** |
 
 The frontend is already functional in mock mode, so Pillar C is mostly polish + integration.
 With 2 people, Member 2 does B1–B5 first (the differentiator), then C tasks.
@@ -69,3 +70,49 @@ With 2 people, Member 2 does B1–B5 first (the differentiator), then C tasks.
 - [ ] **D2** 90-second demo script: upload → live graph → click node (source quote) → quiz (one careless fast answer) → red path to the root gap → next topics
 - [ ] **D3** Record a backup screen video of the demo at H8.5
 - [ ] **D4** README screenshots + architecture diagram
+
+## E — Beginner Track  (`site/`, `scripts/`)  — no React, no FastAPI, no API key needed
+
+Good first tasks for someone new to the stack. Plain HTML/CSS and plain Python (standard library
+only: `json`, `random`, `pathlib`). Nothing here is imported by the app, so you **cannot break
+anyone else's code**. Each task is its own small PR. Ask a pillar owner if a word is unclear.
+
+- [ ] **E1** (H0.5–2.5) Project landing page `site/index.html` + `site/style.css`. Plain HTML/CSS, no
+  framework, opens by double-clicking. Sections: hero ("Find the gap *behind* the gap"), the problem,
+  how it works in 4 steps (upload → graph → quiz → root gap), team, link to the repo. Use the
+  colours from the app (red = gap, orange = careless). ✅ opens in Chrome with no broken images;
+  looks OK on a phone (Chrome DevTools → device toolbar).
+- [ ] **E2** (H2.5–3.5) `scripts/graph_stats.py`: read `fixtures/sample_graph.json` and print
+  - number of concepts and edges
+  - concepts per `cluster`
+  - top 3 concepts by `importance`
+  - any concept with an empty `source_excerpt`, any edge with empty `evidence` (these are bugs!)
+  - any edge whose `source`/`target` is not a concept id
+
+  Take the file path as an argument so Pillar A can run it on real graphs:
+  `python3 scripts/graph_stats.py fixtures/sample_graph.json`. ✅ runs with no errors, output matches
+  what you count by hand.
+- [ ] **E3** (H3.5–5) `scripts/fake_learners.py`: generate 5 simulated learners' answer files
+  (same shape as `fixtures/sample_answers.json`) into `scripts/out/learner_1.json … learner_5.json`.
+  Use `random.seed(42)` so output is the same every run. Give each learner a "personality"
+  (strong, weak at maths, careless/fast, guesser, average) that changes `choice_index`,
+  `confidence` and `time_ms`. Answer key: `fixtures/sample_quiz_key.json`. Feeds **C8** teacher view.
+  ✅ `python3 -m json.tool scripts/out/learner_1.json` is valid JSON.
+- [ ] **E4** (H5–6.5) Write 2 extra demo inputs in `site/samples/` (so it doesn't touch `fixtures/`):
+  a ~1-page text chapter on a topic you know (e.g. photosynthesis, SQL joins, fractions) where
+  concepts clearly build on each other, and a short well-commented Python file. Great for testing
+  Pillar A's prompts on something that isn't the neural-network demo.
+- [ ] **E5** (H6.5–8) QA tester: run the full demo 3× following **D2**, file every bug as a GitHub
+  issue (steps, what you expected, what happened, screenshot). Try weird inputs: empty file, huge
+  file, image-only PDF, answering nothing. Add a "How it works" screenshot row to `site/index.html`.
+- [ ] **E6** (stretch) Glossary page `site/glossary.html`: explain BKT, prerequisite graph, root-cause
+  gap, careless slip, DAG in 2–3 plain sentences each. Doubles as judge Q&A prep.
+
+**How to open a PR (first time?)**
+```bash
+git checkout main && git pull
+git checkout -b e/E1-landing          # branch name: e/<task>
+# ...edit files...
+git add site/ && git commit -m "feat(site): landing page"
+git push -u origin e/E1-landing       # then open the PR on GitHub
+```

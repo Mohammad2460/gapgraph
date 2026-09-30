@@ -59,6 +59,7 @@ Each pillar flips **its own** flag to `false` once its real implementation passe
 | **A — AI & Graph** | `backend/app/ingest/`, `backend/app/extraction/`, `backend/app/graph/`, `backend/app/api/documents.py`, `backend/app/api/quiz.py` | `tests/test_graph.py` |
 | **B — Learner Engine** | `backend/app/learner/`, `backend/app/api/assess.py` | `tests/test_learner.py` |
 | **C — Frontend** | `frontend/src/**` (except `types.ts`) | `npm run build` |
+| **E — Beginner** | `site/` (static HTML/CSS), `scripts/` (stdlib-only Python) | open in browser / run script |
 | **Shared (contract)** | `backend/app/models.py`, `frontend/src/types.ts`, `docs/CONTRACT.md`, `fixtures/*`, `pyproject.toml`, `package.json` | `tests/test_contract.py` |
 
 Rules:
