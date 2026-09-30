@@ -205,7 +205,6 @@ def test_b3_empty_answers_leave_mastery_unchanged(demo):
     assert mastery == before
 
 
-@pytest.mark.xfail(reason="TODO B4", raises=NotImplementedError, strict=True)
 def test_b4_next_topics_start_with_root(demo):
     graph, quiz, answers = demo
     m = estimate_mastery(graph, quiz.questions, answers)
@@ -214,7 +213,6 @@ def test_b4_next_topics_start_with_root(demo):
     assert topics[0].concept_id == "chain_rule"
 
 
-@pytest.mark.xfail(reason="TODO B5", raises=NotImplementedError, strict=True)
 def test_b5_full_assessment(demo):
     graph, quiz, answers = demo
     result = assess(graph, quiz, answers)

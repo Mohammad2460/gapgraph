@@ -48,8 +48,8 @@ With 2 people, Member 2 does B1–B5 first (the differentiator), then C tasks.
 - [x] **B1** (H0.5–2) `learner/mastery.py`: `bkt_update` + `estimate_mastery` (BKT + light propagation to prereqs). ✅ `test_b1_bkt_and_mastery`
 - [x] **B2** (H2–3.5) `learner/gaps.py::find_root_gaps`: walk prerequisites from each gap to the deepest weak ancestor; path + plain-English explanation. ✅ `test_b2_root_gap_is_chain_rule`  ⭐ core differentiator
 - [x] **B3** (H3.5–5) `learner/careless.py`: careless score from prereq mastery + confidence + response time + consistency. ✅ `test_b3_gradient_descent_is_careless`  ⭐ official stretch goal
-- [ ] **B4** (H5–6) `learner/path.py::suggest_next_topics`: topological order of the gap subgraph; careless items last; "ready to learn" when no gaps. ✅ `test_b4_next_topics_start_with_root`
-- [ ] **B5** (H6–6.5) Verify `learner/service.py::assess` end to end; set `MOCK_LEARNER=false`. ✅ `test_b5_full_assessment` **→ M2**
+- [x] **B4** (H5–6) `learner/path.py::suggest_next_topics`: topological order of the gap subgraph; careless items last; "ready to learn" when no gaps. ✅ `test_b4_next_topics_start_with_root`
+- [x] **B5** (H6–6.5) Verify `learner/service.py::assess` end to end; set `MOCK_LEARNER=false`. ✅ `test_b5_full_assessment` **→ M2**
 - [ ] **B6** (stretch) Adaptive probing: next question targets the failed concept's weakest prerequisite (needs a `contract:` PR for `POST /api/quiz/{id}/next`).
 - [ ] **B7** (stretch) Graph embeddings over time: spectral/node2vec-style node embeddings (numpy) + a per-learner mastery history; similar concepts share evidence across quiz attempts.
 
