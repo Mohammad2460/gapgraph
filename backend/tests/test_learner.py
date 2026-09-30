@@ -18,7 +18,6 @@ def demo():
     return sample_graph(), sample_quiz_key(), sample_answers()
 
 
-@pytest.mark.xfail(reason="TODO B1", raises=NotImplementedError, strict=True)
 def test_b1_bkt_and_mastery(demo):
     graph, quiz, answers = demo
     assert bkt_update(0.5, True) > 0.5 > bkt_update(0.5, False)
