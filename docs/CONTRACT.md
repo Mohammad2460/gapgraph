@@ -11,6 +11,7 @@ Base URL: `/api` (the Vite dev server proxies it to `http://localhost:8000`). In
 POST /api/documents  ──► doc_id
 GET  /api/documents/{doc_id}/stream   (SSE: status* concept* edge* … done)
 POST /api/quiz  {graph_id = doc_id}  ──► Quiz (no answers)
+POST /api/quiz/{quiz_id}/next {answers so far} ──► NextQuestion   (optional, B6 adaptive order)
 POST /api/assess {quiz_id, answers}  ──► AssessmentResult
 ```
 
@@ -34,6 +35,11 @@ Fields: `file` (pdf/txt/md/code) **or** `text`, optional `title`.
 ### `POST /api/quiz`  `{ graph_id, num_questions: 5..10 = 8 }` → `Quiz`
 Answers (`answer_index`, `explanation`) stay on the server until `/assess`.
 
+### `POST /api/quiz/{quiz_id}/next`  `{ answers: Answer[] }` → `NextQuestion`  (B6, optional)
+Adaptive order over the same quiz: after a miss, returns the unanswered question on the failed
+concept's weakest prerequisite; otherwise the next question in quiz order. `question` is `null`
+when all are answered. Mock mode (`MOCK_LEARNER=true`) returns `fixtures/sample_next_question.json`.
+
 ### `POST /api/assess`  `{ quiz_id, answers: Answer[] }` → `AssessmentResult`
 
 ## Types
@@ -45,6 +51,7 @@ Graph    { id, title, concepts: Concept[], edges: Edge[] }
 Question { id, concept_id, prompt, options: string[4], difficulty: "easy"|"medium"|"hard" }
 Quiz     { quiz_id, graph_id, questions: Question[] }
 Answer   { question_id, choice_index, confidence: 0..1, time_ms: number|null }
+NextQuestion { question: Question|null, target_concept_id: string|null, reason, remaining }
 
 MasteryStatus = "mastered" | "shaky" | "gap" | "careless" | "untested"
 ConceptMastery { concept_id, p_known: 0..1, status, evidence_count }

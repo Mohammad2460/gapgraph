@@ -59,6 +59,18 @@ export interface Answer {
   time_ms: number | null
 }
 
+// B6 adaptive probing: POST /api/quiz/{quiz_id}/next
+export interface NextQuestionRequest {
+  answers: Answer[] // answered so far, in order
+}
+
+export interface NextQuestion {
+  question: Question | null // null when every question is answered
+  target_concept_id: string | null
+  reason: string
+  remaining: number // unanswered questions left after this one
+}
+
 export interface ConceptMastery {
   concept_id: string
   p_known: number

@@ -2,7 +2,13 @@
 
 import networkx as nx
 
-from app.fixtures import sample_answers, sample_assessment, sample_graph, sample_quiz_key
+from app.fixtures import (
+    sample_answers,
+    sample_assessment,
+    sample_graph,
+    sample_next_question,
+    sample_quiz_key,
+)
 from app.graph.algorithms import to_nx
 
 
@@ -18,3 +24,5 @@ def test_fixtures_validate():
     assert all(q.concept_id in ids and len(q.options) == 4 for q in quiz.questions)
     assert {m.concept_id for m in result.mastery} == ids
     assert len(sample_answers()) == len(quiz.questions)
+    nq = sample_next_question()
+    assert nq.question is not None and nq.question.id in {q.id for q in quiz.questions}
