@@ -40,7 +40,7 @@ With 2 people, Member 2 does B1–B5 first (the differentiator), then C tasks.
 - [x] **A3** (H2.5–3.5) `graph/builder.py::GraphBuilder.merge/finalize`: normalize ids, dedupe, drop unknown/self/cyclic edges, importance, cap ~40 nodes. ✅ `test_a3_merge_dedupes_and_blocks_cycles`
 - [x] **A4** (H3.5–4.5) `extraction/pipeline.py::build_graph_stream`: parse → chunk → extract (2–3 concurrent) → merge → yield `concept`/`edge`/`status` → `done`. Set `MOCK_EXTRACTION=false`. **→ M1 with C6**
 - [x] **A5** (H4.5–5.5) `extraction/quiz_gen.py::generate_quiz`: choose concepts (advanced nodes + their prereqs), Claude writes QuestionKeys, ids q1..qN.
-- [ ] **A6** (H5.5–7) Prompt tuning on the real demo chapter + a code file: fewer junk concepts, correct prereq direction, no cycles. Try `CLAUDE_EFFORT=low` for speed.
+- [x] **A6** (H5.5–7) Prompt tuning on the real demo chapter + a code file: fewer junk concepts, correct prereq direction, no cycles. Try `CLAUDE_EFFORT=low` for speed.
 - [ ] **A7** (H7–8) Demo safety: save the real demo chapter's graph + quiz key to `fixtures/demo/` and add a "replay cached" path so the demo works even if the API is slow or down.
 
 ## B — Learner Engine  (`backend/app/learner/`, `api/assess.py`)
