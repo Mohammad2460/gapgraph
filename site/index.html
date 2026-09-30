@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GapGraph — Find the gap behind the gap</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header class="hero">
+    <p class="badge">Smart Education · Hackathon project</p>
+    <h1>Find the gap <em>behind</em> the gap</h1>
+    <p class="lead">
+      Upload a chapter. GapGraph turns it into a live map of concepts, quizzes you,
+      and traces every wrong answer back to the real root cause.
+    </p>
+    <a class="button" href="#how">See how it works</a>
+  </header>
+
+  <main>
+    <section id="problem">
+      <h2>The problem</h2>
+      <p>
+        A student fails a question on <strong>backpropagation</strong> and is told to
+        "study backpropagation again". But the real trouble is often two topics earlier,
+        maybe the <strong>chain rule</strong>. Re-reading the wrong page doesn't help.
+      </p>
+      <p>
+        Tests also mix up two very different mistakes: not knowing something, and
+        simply rushing. Treating both the same wastes the learner's time.
+      </p>
+    </section>
+
+    <section id="how">
+      <h2>How it works</h2>
+      <ol class="steps">
+        <li class="card">
+          <span class="num">1</span>
+          <h3>Upload</h3>
+          <p>Drop in a PDF, text or code file. Claude reads it.</p>
+        </li>
+        <li class="card">
+          <span class="num">2</span>
+          <h3>Graph</h3>
+          <p>Concepts and their prerequisites appear as a live, clickable graph.</p>
+        </li>
+        <li class="card">
+          <span class="num">3</span>
+          <h3>Quiz</h3>
+          <p>Answer 5–10 questions. We note your speed and confidence too.</p>
+        </li>
+        <li class="card">
+          <span class="num">4</span>
+          <h3>Root gap</h3>
+          <p>Weak concepts light up and the true root gap is traced back.</p>
+        </li>
+      </ol>
+
+      <p class="legend">
+        <span class="dot gap"></span> Real gap
+        <span class="dot careless"></span> Careless slip
+      </p>
+    </section>
+
+    <section id="team">
+      <h2>Team</h2>
+      <ul class="team">
+        <li>Pillar A — AI &amp; Graph</li>
+        <li>Pillar B — Learner Engine</li>
+        <li>Pillar C — Frontend</li>
+        <li>Pillar D — Demo &amp; Pitch</li>
+        <li>Pillar E — Beginner track</li>
+      </ul>
+      <!-- TODO: replace with real names -->
+    </section>
+  </main>
+
+  <footer>
+    <a href="https://github.com/Mohammad2460/gapgraph">View the code on GitHub →</a>
+  </footer>
+
+</body>
+</html>
