@@ -1,0 +1,17 @@
+{
+  "question": {
+    "id": "q2",
+    "concept_id": "chain_rule",
+    "prompt": "What is the derivative of f(g(x))?",
+    "options": [
+      "f'(x) · g'(x)",
+      "f'(g(x)) + g'(x)",
+      "f'(g(x)) · g'(x)",
+      "f(g'(x))"
+    ],
+    "difficulty": "medium"
+  },
+  "target_concept_id": "chain_rule",
+  "reason": "You missed Backpropagation: checking its prerequisite Chain Rule",
+  "remaining": 5
+}
