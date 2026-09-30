@@ -1,0 +1,101 @@
+/* 1. Variables: change a colour once, it changes everywhere */
+:root {
+  --gap: #ef4444;        /* red = real gap */
+  --careless: #f97316;   /* orange = careless slip */
+  --ink: #1f2937;
+  --muted: #6b7280;
+  --bg: #f9fafb;
+  --card: #ffffff;
+  --dark: #111827;
+}
+
+/* 2. Base */
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  color: var(--ink);
+  background: var(--bg);
+  line-height: 1.6;
+}
+
+/* 3. Hero */
+.hero {
+  background: var(--dark);
+  color: #fff;
+  text-align: center;
+  padding: 4rem 1.25rem;
+}
+.hero h1 {
+  font-size: clamp(2rem, 6vw, 3.5rem); /* scales with screen width */
+  margin: 0.5rem 0;
+}
+.hero em { color: var(--gap); font-style: normal; }
+.lead { max-width: 40rem; margin: 0 auto 1.5rem; color: #d1d5db; }
+.badge { color: var(--careless); font-size: 0.9rem; margin: 0; }
+
+.button {
+  display: inline-block;
+  background: var(--gap);
+  color: #fff;
+  padding: 0.75rem 1.5rem;
+  border-radius: 999px;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+/* 4. Page sections */
+main { max-width: 60rem; margin: 0 auto; padding: 0 1.25rem; }
+section { padding: 2.5rem 0; }
+h2 { font-size: 1.75rem; margin-top: 0; }
+
+/* 5. The 4 step cards: grid wraps automatically on small screens */
+.steps {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  gap: 1rem;
+}
+.card {
+  background: var(--card);
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+.card h3 { margin: 0.5rem 0 0.25rem; }
+.card p { margin: 0; color: var(--muted); }
+.num {
+  display: inline-block;
+  width: 2rem;
+  height: 2rem;
+  line-height: 2rem;
+  text-align: center;
+  border-radius: 50%;
+  background: var(--gap);
+  color: #fff;
+  font-weight: 700;
+}
+
+/* 6. Legend */
+.legend { margin-top: 1.5rem; color: var(--muted); }
+.dot {
+  display: inline-block;
+  width: 0.8rem;
+  height: 0.8rem;
+  border-radius: 50%;
+  margin: 0 0.3rem 0 1rem;
+}
+.dot.gap { background: var(--gap); }
+.dot.careless { background: var(--careless); }
+
+/* 7. Team + footer */
+.team { padding-left: 1.2rem; }
+footer {
+  text-align: center;
+  padding: 2rem 1.25rem;
+  background: var(--dark);
+}
+footer a { color: #fff; }
