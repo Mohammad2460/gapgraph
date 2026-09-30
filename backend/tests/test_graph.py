@@ -2,13 +2,17 @@
 
 import asyncio
 
+import networkx as nx
+
 from app.extraction import concepts as concepts_mod
 from app.extraction import pipeline as pipeline_mod
-from app.fixtures import sample_chapter
+from app.extraction import quiz_gen as quiz_mod
+from app.fixtures import sample_chapter, sample_graph
+from app.graph.algorithms import to_nx
 from app.graph.builder import GraphBuilder
 from app.ingest.chunker import chunk
 from app.ingest.parser import to_text
-from app.models import Concept, Edge, ExtractionResult
+from app.models import Concept, Edge, ExtractionResult, QuestionKey
 from app.store import Document
 
 
@@ -150,3 +154,45 @@ def test_a4_pipeline_skips_failed_chunk_but_errors_when_nothing_extracted(monkey
 
     events = _run_pipeline(b"   ", monkeypatch, always_fail)
     assert events[-1][0] == "error"
+
+
+def test_a5_selects_advanced_nodes_with_prereq_chain_in_learning_order():
+    graph = sample_graph()
+    g = to_nx(graph)
+    picked = quiz_mod.select_concepts(graph, 8)
+    assert len(picked) == len(set(picked)) == 8
+    most_advanced = max(g.nodes, key=lambda n: len(nx.ancestors(g, n)))
+    assert most_advanced in picked
+    assert set(g.predecessors(most_advanced)) & set(picked)
+    pos = {c: i for i, c in enumerate(picked)}
+    assert all(pos[u] < pos[v] for u, v in g.edges if u in pos and v in pos)
+
+
+def test_a5_generate_quiz_validates_and_numbers_questions(monkeypatch):
+    graph = sample_graph()
+    seen = {}
+
+    def q(cid, options=("a", "b", "c", "d"), answer=1):
+        return QuestionKey(
+            id="zz",
+            concept_id=cid,
+            prompt=f"about {cid}",
+            options=list(options),
+            answer_index=answer,
+            explanation="e",
+        )
+
+    async def fake_structured(system, user, schema, **kw):
+        seen["user"] = user
+        picked = quiz_mod.select_concepts(graph, 5)
+        bad = [q("ghost"), q(picked[0], options=("a", "b", "c")), q(picked[1], answer=7)]
+        return schema(questions=[q(c) for c in picked] + bad + [q(picked[0])])
+
+    monkeypatch.setattr(quiz_mod.llm, "structured", fake_structured)
+    key = asyncio.run(quiz_mod.generate_quiz(graph, 5))
+    assert key.graph_id == graph.id and key.quiz_id
+    assert [x.id for x in key.questions] == ["q1", "q2", "q3", "q4", "q5"]
+    assert len({x.concept_id for x in key.questions}) == 5
+    assert all(len(x.options) == 4 and 0 <= x.answer_index < 4 for x in key.questions)
+    names = {c.id: c.name for c in graph.concepts}
+    assert all(names[x.concept_id] in seen["user"] for x in key.questions)
