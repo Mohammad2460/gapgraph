@@ -21,7 +21,7 @@ MAX_HISTORY = 10
 
 Snapshot = dict[str, float]  # concept_id -> p_known, tested concepts only
 
-_HISTORY: dict[str, list[Snapshot]] = {}  # graph_id -> snapshots, oldest first (in-memory)
+_HISTORY: dict[tuple[str, str], list[Snapshot]] = {}  # (graph_id, learner_id) -> oldest first
 
 
 def spectral_embeddings(graph: Graph, dim: int = DIM) -> dict[str, np.ndarray]:
@@ -73,10 +73,10 @@ def refine(
     return out
 
 
-def apply_history(graph: Graph, result: AssessmentResult) -> AssessmentResult:
-    """Refine an assessment with this graph's history, then record this attempt."""
+def apply_history(graph: Graph, result: AssessmentResult, learner_id: str) -> AssessmentResult:
+    """Refine an assessment with this learner's history on the graph, then record it."""
     mastery = {m.concept_id: m for m in result.mastery}
-    past = _HISTORY.setdefault(graph.id, [])
+    past = _HISTORY.setdefault((graph.id, learner_id), [])
     refined = refine(graph, mastery, past)
     past.append(snapshot(mastery))
     del past[:-MAX_HISTORY]

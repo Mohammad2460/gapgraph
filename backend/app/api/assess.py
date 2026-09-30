@@ -26,7 +26,10 @@ async def assess_quiz(req: AssessRequest) -> AssessmentResult:
         result = sample_assessment()
         result.quiz_id, result.graph_id = quiz.quiz_id, graph.id
         return result
-    return apply_history(graph, assess(graph, quiz, req.answers))
+    result = assess(graph, quiz, req.answers)
+    if req.learner_id:  # B7 history is opt-in and per learner
+        result = apply_history(graph, result, req.learner_id)
+    return result
 
 
 @router.post("/quiz/{quiz_id}/next", response_model=NextQuestion)

@@ -10,7 +10,6 @@ from fastapi.testclient import TestClient
 from app.api.assess import router as assess_router
 from app.api.assess import settings, store
 from app.fixtures import sample_answers, sample_graph, sample_quiz_key
-from app.learner import embeddings
 from app.learner.careless import careless_score, classify_careless
 from app.learner.gaps import find_root_gaps
 from app.learner.mastery import bkt_update, estimate_mastery
@@ -266,7 +265,6 @@ def test_b5_real_api_uses_submitted_answers(demo, monkeypatch, answer_mode):
     elif answer_mode == "empty":
         answers = []
     monkeypatch.setattr(settings, "mock_learner", False)
-    monkeypatch.setattr(embeddings, "_HISTORY", {})  # B7 keeps per-graph history in memory
     monkeypatch.setitem(store.graphs, graph.id, graph)
     monkeypatch.setitem(store.quizzes, quiz.quiz_id, quiz)
     app = FastAPI()
@@ -278,10 +276,7 @@ def test_b5_real_api_uses_submitted_answers(demo, monkeypatch, answer_mode):
         })
     assert response.status_code == 200
     result = response.json()
-    # B7: the API also blends untested concepts' p_known (fresh history here); rest is assess().
-    monkeypatch.setattr(embeddings, "_HISTORY", {})
-    expected = embeddings.apply_history(graph, assess(graph, quiz, answers))
-    assert result == expected.model_dump(mode="json")
+    assert result == assess(graph, quiz, answers).model_dump(mode="json")
     assert result["score"] == {
         "correct": 5 if answer_mode == "demo" else len(answers), "total": len(answers),
     }

@@ -109,6 +109,9 @@ class Answer(BaseModel):
 class AssessRequest(BaseModel):
     quiz_id: str
     answers: list[Answer]
+    learner_id: str | None = Field(
+        default=None, description="Opt in to B7 per-learner history"
+    )
 
 
 class NextQuestionRequest(BaseModel):

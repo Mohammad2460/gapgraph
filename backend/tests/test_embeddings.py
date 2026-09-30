@@ -61,7 +61,8 @@ def test_b7_assess_endpoint_remembers_previous_attempt(monkeypatch):
     chain_q = next(q["id"] for q in quiz["questions"] if q["concept_id"] == "chain_rule")
 
     def p_chain(ans):
-        r = client.post("/api/assess", json={"quiz_id": quiz["quiz_id"], "answers": ans}).json()
+        body = {"quiz_id": quiz["quiz_id"], "answers": ans, "learner_id": "ada"}
+        r = client.post("/api/assess", json=body).json()
         return next(m for m in r["mastery"] if m["concept_id"] == "chain_rule")
 
     assert p_chain(answers)["status"] == "gap"
@@ -70,3 +71,22 @@ def test_b7_assess_endpoint_remembers_previous_attempt(monkeypatch):
     fresh = p_chain([a for a in answers if a["question_id"] != chain_q])
     assert later["status"] == fresh["status"] == "untested"
     assert later["p_known"] < fresh["p_known"]
+
+
+def test_b7_history_is_opt_in_and_per_learner(monkeypatch):
+    monkeypatch.setattr(settings, "mock_extraction", True)
+    monkeypatch.setattr(settings, "mock_learner", False)
+    monkeypatch.setattr(emb, "_HISTORY", {})
+    client = TestClient(app)
+    quiz = client.post("/api/quiz", json={"graph_id": "demo"}).json()
+    answers = [a.model_dump() for a in sample_answers()]
+
+    def run(**extra):
+        body = {"quiz_id": quiz["quiz_id"], "answers": answers, **extra}
+        return client.post("/api/assess", json=body).json()["mastery"]
+
+    first = run()
+    assert run() == first  # no learner_id: stateless
+    assert emb._HISTORY == {}
+    run(learner_id="ada")
+    assert list(emb._HISTORY) == [("demo", "ada")]  # other learners untouched

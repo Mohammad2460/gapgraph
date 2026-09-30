@@ -40,7 +40,9 @@ Adaptive order over the same quiz: after a miss, returns the unanswered question
 concept's weakest prerequisite; otherwise the next question in quiz order. `question` is `null`
 when all are answered. Mock mode (`MOCK_LEARNER=true`) returns `fixtures/sample_next_question.json`.
 
-### `POST /api/assess`  `{ quiz_id, answers: Answer[] }` → `AssessmentResult`
+### `POST /api/assess`  `{ quiz_id, answers: Answer[], learner_id?: string }` → `AssessmentResult`
+
+Optional `learner_id` (B7): repeat attempts by the same learner on the same graph share evidence for untested concepts. Omit it for a stateless assessment.
 
 ## Types
 
