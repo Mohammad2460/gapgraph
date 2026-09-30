@@ -57,6 +57,17 @@ export default function App() {
       setPhase('quiz')
     })
 
+  const reset = () => {
+    stream.reset()
+    stream.clear()
+    setPhase('upload')
+    setQuiz(null)
+    setResult(null)
+    setSelected(null)
+    setActiveGap(0)
+    setError(null)
+  }
+
   const submit = (answers: Answer[]) =>
     run(async () => {
       const r = await api.assess(quiz!.quiz_id, answers)
@@ -68,19 +79,24 @@ export default function App() {
 
   return (
     <div className="flex h-screen flex-col bg-white text-slate-900">
-      <header className="flex items-center justify-between border-b border-slate-200 px-4 py-2">
+      <header className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 px-4 py-2">
         <div>
           <span className="text-lg font-bold">GapGraph</span>
           <span className="ml-2 text-sm text-slate-500">{stream.graph?.title ?? 'Live Knowledge Graph + Learning Gap Locator'}</span>
         </div>
         <div className="flex items-center gap-4">
           <Legend clusters={result || Object.keys(clusters).length === 0 ? undefined : clusters} />
+          {phase !== 'upload' && (
+            <button onClick={reset} className="rounded border border-slate-300 px-2 py-0.5 text-xs hover:bg-slate-100">
+              Start over
+            </button>
+          )}
           {USE_MOCK && <span className="rounded bg-amber-100 px-2 py-0.5 text-xs text-amber-800">MOCK</span>}
         </div>
       </header>
 
-      <main className="flex min-h-0 flex-1">
-        <section className="relative min-w-0 flex-1 bg-slate-50">
+      <main className="flex min-h-0 flex-1 flex-col overflow-y-auto md:flex-row md:overflow-hidden">
+        <section className="relative h-[50vh] min-w-0 shrink-0 bg-slate-50 md:h-auto md:flex-1">
           {stream.concepts.length > 0 ? (
             <GraphView
               concepts={stream.concepts}
@@ -92,9 +108,30 @@ export default function App() {
               onSelect={setSelected}
             />
           ) : (
-            <div className="flex h-full items-center justify-center text-slate-400">
-              Upload a chapter to build its knowledge graph
-            </div>
+            phase === 'building' && !stream.error ? (
+              <div className="flex h-full animate-pulse items-center justify-center gap-6" aria-label="Loading graph">
+                {[10, 16, 12, 18, 11].map((r, i) => (
+                  <div key={i} className="rounded-full bg-slate-200" style={{ width: r * 3, height: r * 3 }} />
+                ))}
+              </div>
+            ) : (
+              <div className="flex h-full flex-col items-center justify-center gap-4 p-6 text-center">
+                <h2 className="text-2xl font-bold">
+                  Find the gap <span className="text-red-500">behind</span> the gap
+                </h2>
+                <p className="max-w-md text-slate-500">
+                  Upload a chapter and watch its concepts and prerequisites appear as a live graph. Then take a short
+                  quiz to see your real root-cause gaps — and which mistakes were just careless slips.
+                </p>
+                <ol className="flex flex-wrap justify-center gap-2 text-xs text-slate-600">
+                  {['Upload', 'Graph', 'Quiz', 'Root gap'].map((t, i) => (
+                    <li key={t} className="rounded-full border border-slate-300 bg-white px-3 py-1">
+                      {i + 1}. {t}
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            )
           )}
           {phase === 'building' && !graphReady && !stream.error && (
             <div className="absolute inset-x-0 top-0">
@@ -118,7 +155,7 @@ export default function App() {
           )}
         </section>
 
-        <aside className="w-96 space-y-4 overflow-y-auto border-l border-slate-200 p-4">
+        <aside className="w-full space-y-4 border-t border-slate-200 p-4 md:w-96 md:overflow-y-auto md:border-t-0 md:border-l">
           {(error || stream.error) && (
             <div role="alert" className="space-y-2 rounded bg-red-50 p-2 text-sm text-red-700">
               <div>{error || stream.error}</div>

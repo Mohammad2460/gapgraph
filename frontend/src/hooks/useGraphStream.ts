@@ -60,5 +60,12 @@ export function useGraphStream() {
     setStatus(null)
   }, [])
 
-  return { concepts, edges, status, graph, error, slow, start, reset }
+  /** Forget the whole graph (used by "Start over"). */
+  const clear = useCallback(() => {
+    setConcepts([])
+    setEdges([])
+    setGraph(null)
+  }, [])
+
+  return { concepts, edges, status, graph, error, slow, start, reset, clear }
 }
