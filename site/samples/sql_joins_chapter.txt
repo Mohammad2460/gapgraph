@@ -1,0 +1,41 @@
+Chapter 2: Combining Tables with SQL Joins
+
+2.1 Tables, Rows and Columns
+
+A relational database stores data in tables. A table is a grid: each column has a name and a type, and each row is one record. For example, a customers table might have the columns id, name and city, and each row describes one customer. Everything in this chapter builds on this idea, so make sure it is clear before moving on.
+
+2.2 Primary Keys
+
+A primary key is a column whose value is unique for every row and never empty. It identifies a row the way a passport number identifies a person. In the customers table, id is the primary key: no two customers share an id. Without primary keys we could not point at one specific row.
+
+2.3 Foreign Keys
+
+A foreign key is a column in one table that stores the primary key of a row in another table. An orders table might have a customer_id column. The value 7 in customer_id means "this order belongs to the customer whose id is 7". Foreign keys are how tables are linked. To understand a foreign key you must first understand a primary key, because a foreign key is only a copy of one.
+
+2.4 The SELECT Statement and WHERE
+
+The SELECT statement reads data from a table: SELECT name FROM customers. The WHERE clause keeps only the rows that satisfy a condition: SELECT name FROM customers WHERE city = 'Delhi'. We need SELECT and WHERE before we can write a join, because a join is an extension of SELECT.
+
+2.5 INNER JOIN
+
+An INNER JOIN combines rows from two tables where a condition matches, usually where a foreign key equals a primary key:
+
+SELECT customers.name, orders.total
+FROM customers
+INNER JOIN orders ON orders.customer_id = customers.id;
+
+Only customers that have at least one order appear in the result. Customers with no orders are dropped. Writing the ON condition correctly requires understanding foreign keys and primary keys.
+
+2.6 LEFT JOIN
+
+A LEFT JOIN keeps every row from the left table, even when there is no match on the right. Where there is no match, the right-hand columns are filled with NULL. Changing INNER JOIN to LEFT JOIN in the example above lists all customers, including those who have never ordered. LEFT JOIN is a variation of INNER JOIN, so you should be comfortable with INNER JOIN first.
+
+2.7 Finding Missing Matches
+
+A common trick combines LEFT JOIN with a WHERE test for NULL. To find customers who have never placed an order, LEFT JOIN orders and keep rows where orders.id IS NULL. This uses LEFT JOIN, NULL values and WHERE together.
+
+2.8 Joins with Aggregation
+
+Joins are often combined with GROUP BY and COUNT to summarise linked data, for example the number of orders per customer. First join the tables, then group the joined rows by customer. This is the most advanced idea in the chapter and depends on INNER JOIN, LEFT JOIN and WHERE.
+
+Summary: tables hold rows; primary keys identify rows; foreign keys link tables; SELECT and WHERE read data; INNER JOIN and LEFT JOIN combine tables; joins plus GROUP BY summarise the result.
