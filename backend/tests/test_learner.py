@@ -219,3 +219,28 @@ def test_b5_full_assessment(demo):
     graph, quiz, answers = demo
     result = assess(graph, quiz, answers)
     assert result.score.correct == 5 and result.score.total == 8
+
+
+def test_b4_path_orders_root_first_and_careless_last(demo):
+    graph, quiz, answers = demo
+    m = estimate_mastery(graph, quiz.questions, answers)
+    topics = suggest_next_topics(graph, m, find_root_gaps(graph, m), ["gradient_descent"])
+    assert [t.concept_id for t in topics] == ["chain_rule", "backpropagation", "gradient_descent"]
+    assert [t.order for t in topics] == [1, 2, 3]
+    assert topics[0].reason.startswith("Root gap") and "Backpropagation" in topics[0].reason
+    assert "Chain Rule" in topics[1].reason
+    assert topics[-1].reason == "Quick re-check only"
+
+
+def test_b4_no_gaps_suggests_ready_to_learn(demo):
+    graph, quiz, answers = demo
+    m = estimate_mastery(graph, quiz.questions, answers)
+    for cm in m.values():
+        if cm.status != "untested":
+            cm.status = "mastered"
+    topics = suggest_next_topics(graph, m, [], [])
+    assert topics and all(t.reason == "Ready to learn" for t in topics)
+    prereqs = {c.id: [e.source for e in graph.edges if e.target == c.id] for c in graph.concepts}
+    for t in topics:
+        assert m[t.concept_id].status == "untested"
+        assert all(m[p].status == "mastered" for p in prereqs[t.concept_id])
