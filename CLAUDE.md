@@ -73,9 +73,12 @@ Rules:
 
 ## Git workflow
 
+- `main` is protected: **no direct pushes**. Only the repo owner (@Mohammad2460) merges.
 - Branch per task: `a/A2-extract`, `b/B2-root-gap`, `c/C5-results`. Keep branches < 1 hour old.
-- `git pull --rebase origin main` before pushing. Merge (squash) to `main` as soon as `make check` passes.
-- Never force-push `main`. Never commit `.env`.
+- Flow: `git pull --rebase origin main` → `make check` → push the branch →
+  `gh pr create --fill` → tell the owner. Never merge your own PR. One task per PR.
+- PRs are squash-merged and the branch is auto-deleted. Start the next task from fresh `main`.
+- Never force-push. Never commit `.env`.
 
 ## Conventions
 
