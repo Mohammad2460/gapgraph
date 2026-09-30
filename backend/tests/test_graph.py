@@ -3,11 +3,13 @@
 import asyncio
 
 from app.extraction import concepts as concepts_mod
+from app.extraction import pipeline as pipeline_mod
 from app.fixtures import sample_chapter
 from app.graph.builder import GraphBuilder
 from app.ingest.chunker import chunk
 from app.ingest.parser import to_text
 from app.models import Concept, Edge, ExtractionResult
+from app.store import Document
 
 
 def test_a1_parse_and_chunk():
@@ -89,3 +91,62 @@ def test_a3_finalize_scores_flat_importance_and_caps_nodes():
     imp = {c.id: c.importance for c in g.concepts}
     assert imp["c0"] == max(imp.values())
     assert all(0.0 <= v <= 1.0 for v in imp.values())
+
+
+def _run_pipeline(raw: bytes, monkeypatch, fake_extract) -> list[tuple[str, dict]]:
+    monkeypatch.setattr(pipeline_mod, "extract_chunk", fake_extract)
+    doc = Document(doc_id="d1", title="Ch 1", filename="ch.txt", raw=raw)
+
+    async def collect():
+        return [ev async for ev in pipeline_mod.build_graph_stream(doc)]
+
+    return asyncio.run(collect())
+
+
+def test_a4_pipeline_streams_concepts_then_edges_then_done(monkeypatch):
+    async def fake_extract(chunk, known):
+        return ExtractionResult(
+            concepts=[
+                Concept(id="derivatives", name="Derivatives", definition="d"),
+                Concept(id="chain_rule", name="Chain Rule", definition="c"),
+            ],
+            edges=[Edge(source="derivatives", target="chain_rule")],
+        )
+
+    events = _run_pipeline(sample_chapter().encode(), monkeypatch, fake_extract)
+    names = [n for n, _ in events]
+    assert names[0] == "status" and names[-1] == "done"
+    sent: set[str] = set()
+    for name, payload in events:
+        if name == "concept":
+            sent.add(payload["id"])
+        if name == "edge":
+            assert {payload["source"], payload["target"]} <= sent
+    assert names.count("concept") == 2 and names.count("edge") == 1
+    assert all(0 <= p["progress"] <= 1 for n, p in events if n == "status")
+    done = events[-1][1]
+    assert (done["id"], done["title"]) == ("d1", "Ch 1")
+    assert len(done["concepts"]) == 2
+
+
+def test_a4_pipeline_skips_failed_chunk_but_errors_when_nothing_extracted(monkeypatch):
+    calls = {"n": 0}
+
+    async def flaky(chunk, known):
+        calls["n"] += 1
+        if calls["n"] == 1:
+            raise RuntimeError("boom")
+        return ExtractionResult(concepts=[Concept(id="x", name="X", definition="x")], edges=[])
+
+    text = ("para one. " * 200 + "\n\n") * 3  # several chunks
+    events = _run_pipeline(text.encode(), monkeypatch, flaky)
+    assert events[-1][0] == "done"
+
+    async def always_fail(chunk, known):
+        raise RuntimeError("api down")
+
+    events = _run_pipeline(text.encode(), monkeypatch, always_fail)
+    assert events[-1][0] == "error" and "api down" in events[-1][1]["message"]
+
+    events = _run_pipeline(b"   ", monkeypatch, always_fail)
+    assert events[-1][0] == "error"
