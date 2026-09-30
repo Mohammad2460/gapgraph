@@ -4,6 +4,8 @@ import asyncio
 
 import networkx as nx
 
+from app.api import quiz as quiz_api
+from app.extraction import cache as cache_mod
 from app.extraction import concepts as concepts_mod
 from app.extraction import pipeline as pipeline_mod
 from app.extraction import quiz_gen as quiz_mod
@@ -12,7 +14,7 @@ from app.graph.algorithms import to_nx
 from app.graph.builder import GraphBuilder
 from app.ingest.chunker import chunk
 from app.ingest.parser import to_text
-from app.models import Concept, Edge, ExtractionResult, QuestionKey
+from app.models import Concept, Edge, ExtractionResult, QuestionKey, QuizKey
 from app.store import Document
 
 
@@ -196,3 +198,79 @@ def test_a5_generate_quiz_validates_and_numbers_questions(monkeypatch):
     assert all(len(x.options) == 4 and 0 <= x.answer_index < 4 for x in key.questions)
     names = {c.id: c.name for c in graph.concepts}
     assert all(names[x.concept_id] in seen["user"] for x in key.questions)
+
+
+def _live_api(monkeypatch, tmp_path):
+    from fastapi.testclient import TestClient
+
+    from app.config import settings
+    from app.main import app
+
+    monkeypatch.setattr(settings, "mock_extraction", False)
+    monkeypatch.setattr(cache_mod, "CACHE_DIR", tmp_path)
+    return TestClient(app)
+
+
+def _stream_events(client, doc_id):
+    text = client.get(f"/api/documents/{doc_id}/stream").text
+    return [line.split(": ", 1)[1] for line in text.splitlines() if line.startswith("event")]
+
+
+def test_a7_real_run_is_cached_then_replayed_without_llm(monkeypatch, tmp_path):
+    client = _live_api(monkeypatch, tmp_path)
+
+    async def fake_extract(chunk, known):
+        return ExtractionResult(
+            concepts=[
+                Concept(id="a", name="A", definition="a"),
+                Concept(id="b", name="B", definition="b"),
+            ],
+            edges=[Edge(source="a", target="b")],
+        )
+
+    async def fake_quiz(graph, n):
+        q = QuestionKey(
+            id="q1",
+            concept_id="a",
+            prompt="?",
+            options=list("abcd"),
+            answer_index=0,
+            explanation="e",
+        )
+        return QuizKey(quiz_id="live1", graph_id=graph.id, questions=[q])
+
+    monkeypatch.setattr(pipeline_mod, "extract_chunk", fake_extract)
+    monkeypatch.setattr(quiz_api, "generate_quiz", fake_quiz)
+    doc1 = client.post("/api/documents", data={"text": "same chapter", "title": "T"}).json()
+    assert _stream_events(client, doc1["doc_id"])[-1] == "done"
+    assert client.post("/api/quiz", json={"graph_id": doc1["doc_id"]}).status_code == 200
+
+    async def boom(*a, **k):
+        raise RuntimeError("API down")
+
+    monkeypatch.setattr(pipeline_mod, "extract_chunk", boom)
+    monkeypatch.setattr(quiz_api, "generate_quiz", boom)
+    doc2 = client.post("/api/documents", data={"text": "same chapter", "title": "T2"}).json()
+    events = _stream_events(client, doc2["doc_id"])
+    assert events[-1] == "done" and events.count("concept") == 2 and "edge" in events
+    graph = client.get(f"/api/graphs/{doc2['doc_id']}").json()
+    assert graph["id"] == doc2["doc_id"] and len(graph["concepts"]) == 2
+    quiz = client.post("/api/quiz", json={"graph_id": doc2["doc_id"]}).json()
+    assert quiz["graph_id"] == doc2["doc_id"] and len(quiz["questions"]) == 1
+
+
+def test_a7_quiz_failure_returns_clear_error(monkeypatch, tmp_path):
+    client = _live_api(monkeypatch, tmp_path)
+
+    async def fake_extract(chunk, known):
+        return ExtractionResult(concepts=[Concept(id="a", name="A", definition="a")], edges=[])
+
+    async def boom(*a, **k):
+        raise RuntimeError("API down")
+
+    monkeypatch.setattr(pipeline_mod, "extract_chunk", fake_extract)
+    monkeypatch.setattr(quiz_api, "generate_quiz", boom)
+    doc = client.post("/api/documents", data={"text": "other chapter"}).json()
+    _stream_events(client, doc["doc_id"])
+    r = client.post("/api/quiz", json={"graph_id": doc["doc_id"]})
+    assert r.status_code == 502 and "API down" in r.json()["detail"]

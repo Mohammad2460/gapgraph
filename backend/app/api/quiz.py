@@ -3,6 +3,7 @@
 from fastapi import APIRouter, HTTPException
 
 from app.config import settings
+from app.extraction import cache
 from app.extraction.quiz_gen import generate_quiz
 from app.fixtures import sample_graph, sample_quiz_key
 from app.models import Question, Quiz, QuizRequest
@@ -17,11 +18,20 @@ async def create_quiz(req: QuizRequest) -> Quiz:
     if graph is None:
         raise HTTPException(404, "Unknown graph")
 
+    doc = store.documents.get(req.graph_id)
     if settings.mock_extraction:
         key = sample_quiz_key()
         key.graph_id = graph.id
+    elif doc is not None and (cached := cache.load_quiz(doc.raw)) is not None:
+        key = cached  # demo safety: replay the quiz saved from a real run
+        key.graph_id = graph.id
     else:
-        key = await generate_quiz(graph, req.num_questions)
+        try:
+            key = await generate_quiz(graph, req.num_questions)
+        except Exception as e:
+            raise HTTPException(502, f"Quiz generation failed: {e}") from e
+        if doc is not None:
+            cache.save(doc.raw, key)
 
     store.quizzes[key.quiz_id] = key
     # Strip answers before sending to the client.

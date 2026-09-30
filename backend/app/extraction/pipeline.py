@@ -12,16 +12,16 @@ from app.fixtures import sample_graph
 from app.graph.builder import GraphBuilder
 from app.ingest.chunker import chunk
 from app.ingest.parser import to_text
-from app.models import ExtractionResult
+from app.models import ExtractionResult, Graph
 from app.store import Document
 
 Event = tuple[str, dict]
 CONCURRENCY = 3
 
 
-async def mock_stream(delay: float = 0.25) -> AsyncIterator[Event]:
-    """Replays the fixture graph node-by-node. Used while MOCK_EXTRACTION=1."""
-    graph = sample_graph()
+async def mock_stream(delay: float = 0.25, graph: Graph | None = None) -> AsyncIterator[Event]:
+    """Replays a graph node-by-node: the fixture while MOCK_EXTRACTION=1, or a cached real run."""
+    graph = graph or sample_graph()
     yield "status", {"message": "Reading chapter…", "progress": 0.0}
     sent: set[str] = set()
     for i, concept in enumerate(graph.concepts):
