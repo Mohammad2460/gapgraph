@@ -79,6 +79,16 @@ export function GraphView({
     return s
   }, [highlightPath])
 
+  const pathNodes = useMemo(() => new Set(highlightPath), [highlightPath])
+  const focusing = highlightPath.length > 0
+
+  // Glide to the selected node (e.g. from the "Study next" list).
+  useEffect(() => {
+    if (!selectedId) return
+    const n = nodeCache.current.get(selectedId)
+    if (n?.x !== undefined && n.y !== undefined) fg.current?.centerAt(n.x, n.y, 600)
+  }, [selectedId])
+
   return (
     <div ref={box} className="h-full w-full">
       <ForceGraph2D<Node, Link>
@@ -90,7 +100,7 @@ export function GraphView({
         cooldownTicks={120}
         linkDirectionalArrowLength={5}
         linkDirectionalArrowRelPos={1}
-        linkColor={(l) => (pathEdges.has(l.key) ? STATUS_COLOR.gap : '#cbd5e1')}
+        linkColor={(l) => (pathEdges.has(l.key) ? STATUS_COLOR.gap : focusing ? '#e2e8f0' : '#cbd5e1')}
         linkWidth={(l) => (pathEdges.has(l.key) ? 4 : 1)}
         linkDirectionalParticles={(l) => (pathEdges.has(l.key) ? 4 : 0)}
         linkDirectionalParticleColor={() => STATUS_COLOR.gap}
@@ -110,11 +120,33 @@ export function GraphView({
           const r = (5 + node.importance * 7) * grow
           const x = node.x ?? 0
           const y = node.y ?? 0
-          ctx.globalAlpha = t
+          // Dim everything that is not on the active root-gap path.
+          ctx.globalAlpha = t * (focusing && !pathNodes.has(node.id) ? 0.25 : 1)
           ctx.beginPath()
           ctx.arc(x, y, Math.max(r, 0), 0, 2 * Math.PI)
           ctx.fillStyle = fill
           ctx.fill()
+          if (m?.status === 'careless') {
+            ctx.save()
+            ctx.setLineDash([3 / scale, 2 / scale])
+            ctx.lineWidth = 2 / scale
+            ctx.strokeStyle = STATUS_COLOR.careless
+            ctx.beginPath()
+            ctx.arc(x, y, r + 4 / scale, 0, 2 * Math.PI)
+            ctx.stroke()
+            ctx.restore()
+          }
+          if (highlightPath[0] === node.id) {
+            // Pulsing halo on the root cause.
+            const pulse = (now % 1200) / 1200
+            ctx.beginPath()
+            ctx.arc(x, y, r + (4 + pulse * 14) / scale, 0, 2 * Math.PI)
+            ctx.strokeStyle = STATUS_COLOR.gap
+            ctx.globalAlpha = 0.6 * (1 - pulse)
+            ctx.lineWidth = 3 / scale
+            ctx.stroke()
+            ctx.globalAlpha = t
+          }
           if (node.id === selectedId || highlightPath[0] === node.id) {
             ctx.lineWidth = 3 / scale
             ctx.strokeStyle = '#0f172a'
