@@ -1,0 +1,135 @@
+{
+  "id": "71351956",
+  "title": "Demo chapter",
+  "concepts": [
+    {
+      "id": "loss_function",
+      "name": "Loss Function",
+      "definition": "A loss function measures the discrepancy between a model’s predictions and the true values.",
+      "source_excerpt": "A loss function, such as mean squared error, measures how far the model's predictions are from the true values.",
+      "importance": 0.9,
+      "cluster": "optimization"
+    },
+    {
+      "id": "gradient_descent",
+      "name": "Gradient Descent",
+      "definition": "Gradient descent reduces a loss by repeatedly adjusting weights in the direction opposite to the gradient.",
+      "source_excerpt": "Gradient descent minimizes the loss by repeatedly moving the weights a small step in the direction opposite to the gradient.",
+      "importance": 0.9,
+      "cluster": "optimization"
+    },
+    {
+      "id": "neural_network",
+      "name": "Neural Network",
+      "definition": "A neural network is a model that stacks perceptrons into layers.",
+      "source_excerpt": "A neural network stacks many perceptrons into layers.",
+      "importance": 0.9,
+      "cluster": "neural_networks"
+    },
+    {
+      "id": "backpropagation",
+      "name": "Backpropagation",
+      "definition": "Backpropagation computes loss gradients for network weights by applying the chain rule backward through the layers.",
+      "source_excerpt": "Backpropagation computes the gradient of the loss with respect to every weight in the network.",
+      "importance": 0.9,
+      "cluster": "neural_networks"
+    },
+    {
+      "id": "chain_rule",
+      "name": "Chain Rule",
+      "definition": "The chain rule differentiates a composition of functions by multiplying the derivatives of the nested functions.",
+      "source_excerpt": "When one function is nested inside another, the chain rule tells us how to differentiate the composition: the derivative of f(g(x)) is f'(g(x)) multiplied by g'(x).",
+      "importance": 0.8,
+      "cluster": "calculus"
+    },
+    {
+      "id": "gradient",
+      "name": "Gradient",
+      "definition": "The gradient is the vector of partial derivatives of a function with respect to its parameters.",
+      "source_excerpt": "The gradient is the vector of partial derivatives of the loss with respect to each weight.",
+      "importance": 0.8,
+      "cluster": "optimization"
+    },
+    {
+      "id": "activation_function",
+      "name": "Activation Function",
+      "definition": "An activation function transforms a perceptron’s weighted sum and can add non-linearity to a network.",
+      "source_excerpt": "Activation functions such as sigmoid and ReLU add non-linearity, which lets networks model curved decision boundaries.",
+      "importance": 0.8,
+      "cluster": "neural_networks"
+    },
+    {
+      "id": "derivative",
+      "name": "Derivative",
+      "definition": "A derivative measures how quickly a function’s output changes when its input changes slightly.",
+      "source_excerpt": "The derivative of a function measures how fast its output changes when the input changes a little.",
+      "importance": 0.7,
+      "cluster": "calculus"
+    }
+  ],
+  "edges": [
+    {
+      "source": "derivative",
+      "target": "chain_rule",
+      "relation": "prerequisite",
+      "confidence": 0.97,
+      "evidence": "When one function is nested inside another, the chain rule tells us how to differentiate the composition: the derivative of f(g(x)) is f'(g(x)) multiplied by g'(x)."
+    },
+    {
+      "source": "chain_rule",
+      "target": "backpropagation",
+      "relation": "prerequisite",
+      "confidence": 0.99,
+      "evidence": "It applies the chain rule layer by layer, moving backwards from the output."
+    },
+    {
+      "source": "loss_function",
+      "target": "gradient",
+      "relation": "prerequisite",
+      "confidence": 0.94,
+      "evidence": "The gradient is the vector of partial derivatives of the loss with respect to each weight."
+    },
+    {
+      "source": "gradient",
+      "target": "gradient_descent",
+      "relation": "prerequisite",
+      "confidence": 0.99,
+      "evidence": "Gradient descent minimizes the loss by repeatedly moving the weights a small step in the direction opposite to the gradient."
+    },
+    {
+      "source": "loss_function",
+      "target": "gradient_descent",
+      "relation": "prerequisite",
+      "confidence": 0.98,
+      "evidence": "Gradient descent minimizes the loss by repeatedly moving the weights a small step in the direction opposite to the gradient."
+    },
+    {
+      "source": "neural_network",
+      "target": "backpropagation",
+      "relation": "prerequisite",
+      "confidence": 0.92,
+      "evidence": "Backpropagation computes the gradient of the loss with respect to every weight in the network."
+    },
+    {
+      "source": "loss_function",
+      "target": "backpropagation",
+      "relation": "prerequisite",
+      "confidence": 0.97,
+      "evidence": "Backpropagation computes the gradient of the loss with respect to every weight in the network."
+    },
+    {
+      "source": "gradient",
+      "target": "backpropagation",
+      "relation": "prerequisite",
+      "confidence": 0.9,
+      "evidence": "Backpropagation computes the gradient of the loss with respect to every weight in the network."
+    },
+    {
+      "source": "backpropagation",
+      "target": "gradient_descent",
+      "relation": "prerequisite",
+      "confidence": 0.96,
+      "evidence": "The resulting gradients are then used by gradient descent to update the weights."
+    }
+  ]
+}
