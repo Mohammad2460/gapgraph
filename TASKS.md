@@ -35,7 +35,7 @@ With 2 people, Member 2 does B1–B5 first (the differentiator), then C tasks.
 
 ## A — AI & Graph Engine  (`backend/app/ingest|extraction|graph`, `api/documents.py`, `api/quiz.py`)
 
-- [ ] **A1** (H0.5–1.5) `ingest/parser.py::to_text` (PDF via PyMuPDF, text, code) + `ingest/chunker.py::chunk`. ✅ `test_a1_parse_and_chunk`
+- [x] **A1** (H0.5–1.5) `ingest/parser.py::to_text` (PDF via PyMuPDF, text, code) + `ingest/chunker.py::chunk`. ✅ `test_a1_parse_and_chunk`
 - [ ] **A2** (H1.5–2.5) `extraction/concepts.py::extract_chunk` using `llm.structured(..., ExtractionResult)`. Try it on `fixtures/sample_chapter.txt` from a scratch script; check ids, excerpts, edges.
 - [ ] **A3** (H2.5–3.5) `graph/builder.py::GraphBuilder.merge/finalize`: normalize ids, dedupe, drop unknown/self/cyclic edges, importance, cap ~40 nodes. ✅ `test_a3_merge_dedupes_and_blocks_cycles`
 - [ ] **A4** (H3.5–4.5) `extraction/pipeline.py::build_graph_stream`: parse → chunk → extract (2–3 concurrent) → merge → yield `concept`/`edge`/`status` → `done`. Set `MOCK_EXTRACTION=false`. **→ M1 with C6**
