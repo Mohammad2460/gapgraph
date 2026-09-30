@@ -38,9 +38,9 @@ fixtures/                shared demo data (graph, quiz key, answers, expected as
 
 - Edge direction is always **prerequisite → dependent** (`source` must be learned before `target`).
 - State is in-memory (`app/store.py`). Graph id == doc id. `"demo"` graph id always serves the fixture.
-- Claude access: `app/extraction/llm.py::structured()` — returns a validated Pydantic model via
-  `client.messages.parse(output_format=...)`. Model `claude-opus-5-5` (env `CLAUDE_MODEL`),
-  speed/quality via `CLAUDE_EFFORT` (low|medium|high). Always go through this helper.
+- LLM access (OpenAI): `app/extraction/llm.py::structured()` — returns a validated Pydantic model via
+  `client.responses.parse(text_format=...)`. Model `gpt-6-luna` (env `OPENAI_MODEL`, key
+  `OPENAI_API_KEY`), speed/quality via `OPENAI_EFFORT` (none|low|medium|high). Always go through this helper.
 
 ## Mock switches (why nobody is ever blocked)
 

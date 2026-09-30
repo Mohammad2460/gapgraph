@@ -9,6 +9,10 @@ FIXTURES_DIR = ROOT_DIR / "fixtures"
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=(ROOT_DIR / ".env", ".env"), extra="ignore")
 
+    openai_api_key: str | None = None
+    openai_model: str = "gpt-6-luna"
+    openai_effort: str = "low"  # reasoning effort: none | low | medium | high — lower = faster
+
     anthropic_api_key: str | None = None
     claude_model: str = "claude-opus-5-5"
     claude_effort: str = "medium"  # low | medium | high — lower = faster demo
