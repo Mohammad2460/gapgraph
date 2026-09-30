@@ -1,0 +1,44 @@
+{
+  "quiz_id": "demo-quiz",
+  "graph_id": "demo",
+  "score": { "correct": 5, "total": 8 },
+  "mastery": [
+    { "concept_id": "functions", "p_known": 0.75, "status": "untested", "evidence_count": 0 },
+    { "concept_id": "derivatives", "p_known": 0.85, "status": "mastered", "evidence_count": 1 },
+    { "concept_id": "chain_rule", "p_known": 0.15, "status": "gap", "evidence_count": 1 },
+    { "concept_id": "vectors", "p_known": 0.7, "status": "untested", "evidence_count": 0 },
+    { "concept_id": "matrix_multiplication", "p_known": 0.82, "status": "mastered", "evidence_count": 1 },
+    { "concept_id": "linear_regression", "p_known": 0.7, "status": "untested", "evidence_count": 0 },
+    { "concept_id": "loss_function", "p_known": 0.88, "status": "mastered", "evidence_count": 1 },
+    { "concept_id": "gradient_descent", "p_known": 0.6, "status": "careless", "evidence_count": 1 },
+    { "concept_id": "activation_function", "p_known": 0.85, "status": "mastered", "evidence_count": 1 },
+    { "concept_id": "perceptron", "p_known": 0.7, "status": "untested", "evidence_count": 0 },
+    { "concept_id": "neural_network", "p_known": 0.7, "status": "untested", "evidence_count": 0 },
+    { "concept_id": "forward_propagation", "p_known": 0.8, "status": "mastered", "evidence_count": 1 },
+    { "concept_id": "backpropagation", "p_known": 0.2, "status": "gap", "evidence_count": 1 }
+  ],
+  "root_gaps": [
+    {
+      "concept_id": "chain_rule",
+      "failed_concept_id": "backpropagation",
+      "path": ["chain_rule", "backpropagation"],
+      "explanation": "You missed Backpropagation because it applies the Chain Rule layer by layer, and your Chain Rule answer was also wrong with low confidence. Fix the Chain Rule first."
+    }
+  ],
+  "careless_slips": ["gradient_descent"],
+  "next_topics": [
+    { "concept_id": "chain_rule", "order": 1, "reason": "Root gap: blocks Backpropagation." },
+    { "concept_id": "backpropagation", "order": 2, "reason": "Retry once the Chain Rule is solid." },
+    { "concept_id": "gradient_descent", "order": 3, "reason": "Likely a careless slip: prerequisites are strong and you answered fast with high confidence. Quick re-check only." }
+  ],
+  "per_question": [
+    { "question_id": "q1", "correct": true, "correct_index": 1, "explanation": "A derivative is the rate of change of the output with respect to the input." },
+    { "question_id": "q2", "correct": false, "correct_index": 2, "explanation": "Chain rule: differentiate the outer function at g(x), then multiply by the derivative of the inner function." },
+    { "question_id": "q3", "correct": true, "correct_index": 1, "explanation": "Each row of the weight matrix produces one weighted sum, giving a new vector." },
+    { "question_id": "q4", "correct": true, "correct_index": 0, "explanation": "The loss quantifies prediction error; learning tries to make it small." },
+    { "question_id": "q5", "correct": false, "correct_index": 1, "explanation": "The gradient points uphill; stepping opposite to it decreases the loss." },
+    { "question_id": "q6", "correct": true, "correct_index": 0, "explanation": "Without non-linearity, stacked layers collapse into one linear function." },
+    { "question_id": "q7", "correct": true, "correct_index": 2, "explanation": "Forward propagation computes the prediction layer by layer." },
+    { "question_id": "q8", "correct": false, "correct_index": 1, "explanation": "Backprop is repeated application of the chain rule, from the output backwards." }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "quiz_id": "demo-quiz",
+  "answers": [
+    { "question_id": "q1", "choice_index": 1, "confidence": 0.8, "time_ms": 9000 },
+    { "question_id": "q2", "choice_index": 0, "confidence": 0.2, "time_ms": 31000 },
+    { "question_id": "q3", "choice_index": 1, "confidence": 0.7, "time_ms": 12000 },
+    { "question_id": "q4", "choice_index": 0, "confidence": 0.9, "time_ms": 7000 },
+    { "question_id": "q5", "choice_index": 0, "confidence": 0.9, "time_ms": 2500 },
+    { "question_id": "q6", "choice_index": 0, "confidence": 0.8, "time_ms": 10000 },
+    { "question_id": "q7", "choice_index": 2, "confidence": 0.7, "time_ms": 14000 },
+    { "question_id": "q8", "choice_index": 0, "confidence": 0.3, "time_ms": 28000 }
+  ]
+}

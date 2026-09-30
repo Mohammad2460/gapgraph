@@ -1,0 +1,25 @@
+Chapter 4: How Neural Networks Learn
+
+4.1 Functions and Derivatives
+A function maps an input to an output. The derivative of a function measures how fast its output changes when the input changes a little. Derivatives let us find the direction in which a function increases or decreases.
+
+4.2 The Chain Rule
+When one function is nested inside another, the chain rule tells us how to differentiate the composition: the derivative of f(g(x)) is f'(g(x)) multiplied by g'(x). The chain rule is the mathematical engine behind training deep networks.
+
+4.3 Vectors and Matrix Multiplication
+A vector is an ordered list of numbers. Matrix multiplication combines a matrix of weights with an input vector to produce a new vector. Every layer of a neural network is, at its core, a matrix multiplication.
+
+4.4 Linear Regression and Loss Functions
+Linear regression fits a straight line to data by choosing weights. A loss function, such as mean squared error, measures how far the model's predictions are from the true values. Learning means finding weights that make the loss small.
+
+4.5 Gradient Descent
+Gradient descent minimizes the loss by repeatedly moving the weights a small step in the direction opposite to the gradient. The gradient is the vector of partial derivatives of the loss with respect to each weight. The step size is called the learning rate.
+
+4.6 The Perceptron and Activation Functions
+A perceptron computes a weighted sum of its inputs and passes it through an activation function. Activation functions such as sigmoid and ReLU add non-linearity, which lets networks model curved decision boundaries.
+
+4.7 Neural Networks and Forward Propagation
+A neural network stacks many perceptrons into layers. During forward propagation, the input flows through each layer's matrix multiplication and activation function to produce a prediction.
+
+4.8 Backpropagation
+Backpropagation computes the gradient of the loss with respect to every weight in the network. It applies the chain rule layer by layer, moving backwards from the output. The resulting gradients are then used by gradient descent to update the weights.

@@ -1,0 +1,31 @@
+[project]
+name = "gapgraph-backend"
+version = "0.1.0"
+description = "GapGraph API: knowledge graph extraction + learning gap locator"
+requires-python = ">=3.11"
+# All deps are pre-declared so pillars never collide on this file / uv.lock.
+# Need a new dep? Post in team chat, one person adds it, everyone `uv sync`.
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.30",
+    "sse-starlette>=2.1",
+    "python-multipart>=0.0.9",
+    "pydantic>=2.8",
+    "pydantic-settings>=2.4",
+    "anthropic>=0.70",
+    "networkx>=3.3",
+    "numpy>=2.0",
+    "pymupdf>=1.24",
+]
+
+[dependency-groups]
+dev = ["pytest>=8", "httpx>=0.27", "ruff>=0.6"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP"]

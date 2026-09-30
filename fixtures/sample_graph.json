@@ -1,0 +1,38 @@
+{
+  "id": "demo",
+  "title": "Chapter 4: How Neural Networks Learn",
+  "concepts": [
+    { "id": "functions", "name": "Functions", "definition": "A mapping from an input to an output.", "source_excerpt": "A function maps an input to an output.", "importance": 0.5, "cluster": "math" },
+    { "id": "derivatives", "name": "Derivatives", "definition": "How fast a function's output changes as its input changes.", "source_excerpt": "The derivative of a function measures how fast its output changes when the input changes a little.", "importance": 0.8, "cluster": "math" },
+    { "id": "chain_rule", "name": "Chain Rule", "definition": "Rule for differentiating a composition: d/dx f(g(x)) = f'(g(x))·g'(x).", "source_excerpt": "The chain rule is the mathematical engine behind training deep networks.", "importance": 0.9, "cluster": "math" },
+    { "id": "vectors", "name": "Vectors", "definition": "An ordered list of numbers.", "source_excerpt": "A vector is an ordered list of numbers.", "importance": 0.4, "cluster": "linear_algebra" },
+    { "id": "matrix_multiplication", "name": "Matrix Multiplication", "definition": "Combining a weight matrix with an input vector to produce a new vector.", "source_excerpt": "Every layer of a neural network is, at its core, a matrix multiplication.", "importance": 0.7, "cluster": "linear_algebra" },
+    { "id": "linear_regression", "name": "Linear Regression", "definition": "Fitting a straight line to data by choosing weights.", "source_excerpt": "Linear regression fits a straight line to data by choosing weights.", "importance": 0.5, "cluster": "ml_basics" },
+    { "id": "loss_function", "name": "Loss Function", "definition": "Measures how far predictions are from true values.", "source_excerpt": "A loss function, such as mean squared error, measures how far the model's predictions are from the true values.", "importance": 0.8, "cluster": "ml_basics" },
+    { "id": "gradient_descent", "name": "Gradient Descent", "definition": "Minimizing loss by stepping weights opposite to the gradient.", "source_excerpt": "Gradient descent minimizes the loss by repeatedly moving the weights a small step in the direction opposite to the gradient.", "importance": 0.9, "cluster": "ml_basics" },
+    { "id": "activation_function", "name": "Activation Function", "definition": "Non-linear function (sigmoid, ReLU) applied after a weighted sum.", "source_excerpt": "Activation functions such as sigmoid and ReLU add non-linearity.", "importance": 0.6, "cluster": "neural_nets" },
+    { "id": "perceptron", "name": "Perceptron", "definition": "A weighted sum of inputs passed through an activation function.", "source_excerpt": "A perceptron computes a weighted sum of its inputs and passes it through an activation function.", "importance": 0.6, "cluster": "neural_nets" },
+    { "id": "neural_network", "name": "Neural Network", "definition": "Layers of perceptrons stacked together.", "source_excerpt": "A neural network stacks many perceptrons into layers.", "importance": 0.8, "cluster": "neural_nets" },
+    { "id": "forward_propagation", "name": "Forward Propagation", "definition": "Passing input through each layer to produce a prediction.", "source_excerpt": "During forward propagation, the input flows through each layer's matrix multiplication and activation function to produce a prediction.", "importance": 0.7, "cluster": "neural_nets" },
+    { "id": "backpropagation", "name": "Backpropagation", "definition": "Computing the loss gradient for every weight by applying the chain rule backwards.", "source_excerpt": "It applies the chain rule layer by layer, moving backwards from the output.", "importance": 1.0, "cluster": "neural_nets" }
+  ],
+  "edges": [
+    { "source": "functions", "target": "derivatives", "relation": "prerequisite", "confidence": 0.95, "evidence": "The derivative of a function measures how fast its output changes." },
+    { "source": "derivatives", "target": "chain_rule", "relation": "prerequisite", "confidence": 0.95, "evidence": "The chain rule tells us how to differentiate the composition." },
+    { "source": "vectors", "target": "matrix_multiplication", "relation": "prerequisite", "confidence": 0.9, "evidence": "Matrix multiplication combines a matrix of weights with an input vector." },
+    { "source": "functions", "target": "linear_regression", "relation": "prerequisite", "confidence": 0.7, "evidence": "Linear regression fits a straight line to data." },
+    { "source": "linear_regression", "target": "loss_function", "relation": "prerequisite", "confidence": 0.7, "evidence": "A loss function measures how far the model's predictions are from the true values." },
+    { "source": "derivatives", "target": "gradient_descent", "relation": "prerequisite", "confidence": 0.9, "evidence": "The gradient is the vector of partial derivatives of the loss." },
+    { "source": "loss_function", "target": "gradient_descent", "relation": "prerequisite", "confidence": 0.9, "evidence": "Gradient descent minimizes the loss." },
+    { "source": "vectors", "target": "gradient_descent", "relation": "prerequisite", "confidence": 0.6, "evidence": "The gradient is the vector of partial derivatives." },
+    { "source": "functions", "target": "activation_function", "relation": "prerequisite", "confidence": 0.7, "evidence": "Activation functions such as sigmoid and ReLU add non-linearity." },
+    { "source": "activation_function", "target": "perceptron", "relation": "prerequisite", "confidence": 0.9, "evidence": "Passes it through an activation function." },
+    { "source": "matrix_multiplication", "target": "perceptron", "relation": "prerequisite", "confidence": 0.7, "evidence": "A perceptron computes a weighted sum of its inputs." },
+    { "source": "perceptron", "target": "neural_network", "relation": "prerequisite", "confidence": 0.95, "evidence": "A neural network stacks many perceptrons into layers." },
+    { "source": "neural_network", "target": "forward_propagation", "relation": "prerequisite", "confidence": 0.9, "evidence": "The input flows through each layer." },
+    { "source": "matrix_multiplication", "target": "forward_propagation", "relation": "prerequisite", "confidence": 0.8, "evidence": "Each layer's matrix multiplication and activation function." },
+    { "source": "forward_propagation", "target": "backpropagation", "relation": "prerequisite", "confidence": 0.85, "evidence": "Moving backwards from the output." },
+    { "source": "chain_rule", "target": "backpropagation", "relation": "prerequisite", "confidence": 0.95, "evidence": "It applies the chain rule layer by layer." },
+    { "source": "gradient_descent", "target": "backpropagation", "relation": "prerequisite", "confidence": 0.8, "evidence": "The resulting gradients are then used by gradient descent." }
+  ]
+}
