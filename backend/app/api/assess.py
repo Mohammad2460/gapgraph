@@ -4,6 +4,7 @@ from fastapi import APIRouter, HTTPException
 
 from app.config import settings
 from app.fixtures import sample_assessment, sample_graph
+from app.learner.embeddings import apply_history
 from app.learner.service import assess
 from app.models import AssessmentResult, AssessRequest
 from app.store import store
@@ -24,4 +25,4 @@ async def assess_quiz(req: AssessRequest) -> AssessmentResult:
         result = sample_assessment()
         result.quiz_id, result.graph_id = quiz.quiz_id, graph.id
         return result
-    return assess(graph, quiz, req.answers)
+    return apply_history(graph, assess(graph, quiz, req.answers))
