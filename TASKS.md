@@ -55,14 +55,14 @@ With 2 people, Member 2 does B1–B5 first (the differentiator), then C tasks.
 
 ## C — Frontend  (`frontend/src/**`)
 
-- [ ] **C1** (H0.5–1.5) Upload polish: drag-and-drop, file-type badge, title field, sample-file buttons.
-- [ ] **C2** (H1.5–3) Live graph polish: pop-in animation for new nodes, colour by `cluster` before the quiz, `zoomToFit` on done, status/progress bar.
-- [ ] **C3** (H3–4) Node detail: show `source_excerpt` prominently (the "no hallucination" proof), prereq + dependent lists, click to jump.
-- [ ] **C4** (H4–4.5) Quiz UX: progress bar, keyboard 1–4 + Enter, confidence as three buttons (Guessing / Unsure / Sure).
-- [ ] **C6** (H4.5–5) Integrate the real backend: `VITE_USE_MOCK=false`, handle stream errors and a slow first response. **→ M1 with A4**
-- [ ] **C5** (H5–6.5) Results "aha" moment: animate the root-gap path (red particles already on), pulse the root node, orange dashed ring for careless, dim unrelated nodes, and a "Study next" list that focuses its node.
-- [ ] **C7** (H6.5–8) Demo polish: hero/empty state, reset button, loading skeletons, responsive side panel, no console errors.
-- [ ] **C8** (stretch) Teacher view: heatmap of the % of students weak on each node (simulate 5 learners from fixtures).
+- [x] **C1** (H0.5–1.5) Upload polish: drag-and-drop, file-type badge, title field, sample-file buttons.
+- [x] **C2** (H1.5–3) Live graph polish: pop-in animation for new nodes, colour by `cluster` before the quiz, `zoomToFit` on done, status/progress bar.
+- [x] **C3** (H3–4) Node detail: show `source_excerpt` prominently (the "no hallucination" proof), prereq + dependent lists, click to jump.
+- [x] **C4** (H4–4.5) Quiz UX: progress bar, keyboard 1–4 + Enter, confidence as three buttons (Guessing / Unsure / Sure).
+- [x] **C6** (H4.5–5) Integrate the real backend: `VITE_USE_MOCK=false`, handle stream errors and a slow first response. **→ M1 with A4**
+- [x] **C5** (H5–6.5) Results "aha" moment: animate the root-gap path (red particles already on), pulse the root node, orange dashed ring for careless, dim unrelated nodes, and a "Study next" list that focuses its node.
+- [x] **C7** (H6.5–8) Demo polish: hero/empty state, reset button, loading skeletons, responsive side panel, no console errors.
+- [x] **C8** (stretch) Teacher view: heatmap of the % of students weak on each node (simulate 5 learners from fixtures).
 
 ## D — Demo & Pitch  (Member 4, or everyone after M3)
 

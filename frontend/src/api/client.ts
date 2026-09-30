@@ -29,8 +29,26 @@ export interface Api {
 }
 
 async function json<T>(res: Response): Promise<T> {
-  if (!res.ok) throw new Error(`${res.status}: ${await res.text()}`)
+  if (!res.ok) {
+    let detail = await res.text()
+    try {
+      const body = JSON.parse(detail)
+      if (typeof body.detail === 'string') detail = body.detail
+    } catch {
+      // not JSON, keep the raw text
+    }
+    throw new Error(`${res.status}: ${detail || res.statusText}`)
+  }
   return res.json() as Promise<T>
+}
+
+/** fetch() that turns "backend is down" into a readable message. */
+async function call(input: string, init?: RequestInit): Promise<Response> {
+  try {
+    return await fetch(input, init)
+  } catch {
+    throw new Error("Can't reach the server. Is the backend running on :8000?")
+  }
 }
 
 const realApi: Api = {
@@ -39,7 +57,7 @@ const realApi: Api = {
     if (file) form.append('file', file)
     if (text) form.append('text', text)
     if (title) form.append('title', title)
-    return json(await fetch('/api/documents', { method: 'POST', body: form }))
+    return json(await call('/api/documents', { method: 'POST', body: form }))
   },
 
   streamDocument(docId, h) {
@@ -53,7 +71,13 @@ const realApi: Api = {
     })
     es.addEventListener('error', (e) => {
       const data = (e as MessageEvent).data
-      h.onError(data ? JSON.parse(data).message : 'Stream connection lost')
+      let message = 'Stream connection lost. Is the backend running?'
+      try {
+        if (data) message = JSON.parse(data).message ?? message
+      } catch {
+        // malformed error payload, use the default message
+      }
+      h.onError(message)
       es.close()
     })
     return () => es.close()
@@ -61,7 +85,7 @@ const realApi: Api = {
 
   async createQuiz(graphId, numQuestions = 8) {
     return json(
-      await fetch('/api/quiz', {
+      await call('/api/quiz', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ graph_id: graphId, num_questions: numQuestions }),
@@ -71,7 +95,7 @@ const realApi: Api = {
 
   async assess(quizId, answers) {
     return json(
-      await fetch('/api/assess', {
+      await call('/api/assess', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ quiz_id: quizId, answers }),
