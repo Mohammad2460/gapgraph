@@ -2,8 +2,6 @@
 
 import asyncio
 
-import pytest
-
 from app.extraction import concepts as concepts_mod
 from app.fixtures import sample_chapter
 from app.graph.builder import GraphBuilder
@@ -37,7 +35,6 @@ def test_a2_extract_chunk_sends_known_ids_and_returns_result(monkeypatch):
     assert "Backprop uses the chain rule." in calls["user"]
 
 
-@pytest.mark.xfail(reason="TODO A3", raises=NotImplementedError, strict=True)
 def test_a3_merge_dedupes_and_blocks_cycles():
     b = GraphBuilder("g", "T")
     c = lambda i, n: Concept(id=i, name=n, definition=n)  # noqa: E731
@@ -50,3 +47,45 @@ def test_a3_merge_dedupes_and_blocks_cycles():
     assert [x.id for x in new_c] == ["c"]  # "b" already known
     assert new_e == []  # b -> a would create a cycle
     assert len(b.finalize().concepts) == 3
+
+
+def test_a3_normalizes_ids_and_merges_near_duplicates():
+    b = GraphBuilder("g", "T")
+    b.merge(
+        ExtractionResult(
+            concepts=[Concept(id="Chain Rule", name="Chain Rule", definition="short")],
+            edges=[],
+        )
+    )
+    new_c, new_e = b.merge(
+        ExtractionResult(
+            concepts=[
+                Concept(id="chain_rules", name="The chain rules", definition="a longer definition"),
+                Concept(id="Derivatives", name="Derivatives", definition="d"),
+            ],
+            edges=[
+                Edge(source="derivative", target="chain-rule"),
+                Edge(source="chain_rule", target="chain_rule"),  # self-loop
+                Edge(source="ghost", target="chain_rule"),  # unknown endpoint
+            ],
+        )
+    )
+    assert [c.id for c in new_c] == ["derivatives"]
+    assert [(e.source, e.target) for e in new_e] == [("derivatives", "chain_rule")]
+    g = b.finalize()
+    assert sorted(c.id for c in g.concepts) == ["chain_rule", "derivatives"]
+    assert next(c for c in g.concepts if c.id == "chain_rule").definition == "a longer definition"
+
+
+def test_a3_finalize_scores_flat_importance_and_caps_nodes():
+    b = GraphBuilder("g", "T")
+    cs = [Concept(id=f"c{i}", name=f"C{i}", definition="d") for i in range(45)]
+    hub_edges = [Edge(source="c0", target=f"c{i}") for i in range(1, 10)]
+    b.merge(ExtractionResult(concepts=cs, edges=hub_edges))
+    g = b.finalize()
+    assert len(g.concepts) == 40
+    ids = {c.id for c in g.concepts}
+    assert all(e.source in ids and e.target in ids for e in g.edges)
+    imp = {c.id: c.importance for c in g.concepts}
+    assert imp["c0"] == max(imp.values())
+    assert all(0.0 <= v <= 1.0 for v in imp.values())
