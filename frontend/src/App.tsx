@@ -87,7 +87,7 @@ export default function App() {
           <span className="ml-2 text-sm text-slate-500">{stream.graph?.title ?? 'Live Knowledge Graph + Learning Gap Locator'}</span>
         </div>
         <div className="flex items-center gap-4">
-          <Legend clusters={result || Object.keys(clusters).length === 0 ? undefined : clusters} />
+          {!teacher && <Legend clusters={result || Object.keys(clusters).length === 0 ? undefined : clusters} />}
           <button onClick={() => setTeacher((t) => !t)} className="rounded border border-slate-300 px-2 py-0.5 text-xs hover:bg-slate-100">
             {teacher ? 'Learner view' : 'Teacher view'}
           </button>

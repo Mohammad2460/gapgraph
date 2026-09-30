@@ -58,6 +58,9 @@ export function GraphView({
   const born = useRef(new Map<string, number>())
   const colors = useMemo(() => clusterColors(concepts.map((c) => c.cluster)), [concepts])
 
+  // Last fitSignal we re-fitted for once the layout settled (the 500ms fit can fire mid-layout).
+  const settledFit = useRef(0)
+
   useEffect(() => {
     if (fitSignal === 0) return
     const t = setTimeout(() => fg.current?.zoomToFit(600, 60), 500)
@@ -108,6 +111,11 @@ export function GraphView({
         width={size.width}
         height={size.height}
         cooldownTicks={120}
+        onEngineStop={() => {
+          if (fitSignal === 0 || settledFit.current === fitSignal) return
+          settledFit.current = fitSignal
+          fg.current?.zoomToFit(400, 60)
+        }}
         linkDirectionalArrowLength={5}
         linkDirectionalArrowRelPos={1}
         linkColor={(l) => (pathEdges.has(l.key) ? STATUS_COLOR.gap : focusing ? '#e2e8f0' : '#cbd5e1')}
