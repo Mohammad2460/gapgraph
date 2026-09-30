@@ -9,7 +9,6 @@ from app.ingest.parser import to_text
 from app.models import Concept, Edge, ExtractionResult
 
 
-@pytest.mark.xfail(reason="TODO A1", raises=NotImplementedError, strict=True)
 def test_a1_parse_and_chunk():
     text = to_text(sample_chapter().encode(), "chapter.txt")
     chunks = chunk(text, max_chars=1500)
