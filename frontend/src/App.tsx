@@ -1,5 +1,6 @@
 // App shell + flow: upload -> live graph -> quiz -> results.  [Pillar C — task C6]
 import { useMemo, useState } from 'react'
+import { clusterColors } from './lib/clusters'
 import { api, USE_MOCK } from './api/client'
 import { GraphView } from './components/GraphView'
 import { Legend } from './components/Legend'
@@ -28,6 +29,7 @@ export default function App() {
   )
   const selectedConcept = stream.concepts.find((c) => c.id === selected)
   const graphReady = stream.graph !== null
+  const clusters = useMemo(() => clusterColors(stream.concepts.map((c) => c.cluster)), [stream.concepts])
 
   const run = async (fn: () => Promise<void>) => {
     setBusy(true)
@@ -72,7 +74,7 @@ export default function App() {
           <span className="ml-2 text-sm text-slate-500">{stream.graph?.title ?? 'Live Knowledge Graph + Learning Gap Locator'}</span>
         </div>
         <div className="flex items-center gap-4">
-          <Legend />
+          <Legend clusters={result || Object.keys(clusters).length === 0 ? undefined : clusters} />
           {USE_MOCK && <span className="rounded bg-amber-100 px-2 py-0.5 text-xs text-amber-800">MOCK</span>}
         </div>
       </header>
@@ -86,6 +88,7 @@ export default function App() {
               mastery={mastery}
               highlightPath={result?.root_gaps[activeGap]?.path}
               selectedId={selected}
+              fitSignal={graphReady ? 1 : 0}
               onSelect={setSelected}
             />
           ) : (
@@ -94,8 +97,16 @@ export default function App() {
             </div>
           )}
           {phase === 'building' && stream.status && !graphReady && (
-            <div className="absolute bottom-3 left-3 rounded bg-white/90 px-3 py-1 text-sm shadow">
-              {stream.status.message} · {Math.round(stream.status.progress * 100)}%
+            <div className="absolute inset-x-0 top-0">
+              <div className="h-1 bg-slate-200">
+                <div
+                  className="h-1 bg-red-500 transition-all duration-300"
+                  style={{ width: `${Math.round(stream.status.progress * 100)}%` }}
+                />
+              </div>
+              <div className="ml-3 mt-2 inline-block rounded bg-white/90 px-3 py-1 text-sm shadow">
+                {stream.status.message} · {Math.round(stream.status.progress * 100)}%
+              </div>
             </div>
           )}
         </section>
