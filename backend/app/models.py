@@ -111,6 +111,19 @@ class AssessRequest(BaseModel):
     answers: list[Answer]
 
 
+class NextQuestionRequest(BaseModel):
+    answers: list[Answer] = Field(description="Answers given so far, in the order answered")
+
+
+class NextQuestion(BaseModel):
+    """Adaptive probing (B6): which quiz question to ask next, and why."""
+
+    question: Question | None = Field(description="null when every question is answered")
+    target_concept_id: str | None = None
+    reason: str
+    remaining: int = Field(description="Unanswered questions left after this one is asked")
+
+
 class ConceptMastery(BaseModel):
     concept_id: str
     p_known: float = Field(description="0..1 probability the learner knows it")

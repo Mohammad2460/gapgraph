@@ -4,8 +4,13 @@ Remove the xfail marker on a test once its task is done; `make test` must stay g
 """
 
 import pytest
+from fastapi import FastAPI
+from fastapi.testclient import TestClient
 
+from app.api.assess import router as assess_router
+from app.api.assess import settings, store
 from app.fixtures import sample_answers, sample_graph, sample_quiz_key
+from app.learner import embeddings
 from app.learner.careless import careless_score, classify_careless
 from app.learner.gaps import find_root_gaps
 from app.learner.mastery import bkt_update, estimate_mastery
@@ -217,6 +222,74 @@ def test_b5_full_assessment(demo):
     graph, quiz, answers = demo
     result = assess(graph, quiz, answers)
     assert result.score.correct == 5 and result.score.total == 8
+    assert result.quiz_id == quiz.quiz_id and result.graph_id == graph.id
+    assert {entry.concept_id for entry in result.mastery} == {c.id for c in graph.concepts}
+    assert len(result.mastery) == len(graph.concepts)
+    assert len(result.per_question) == len(answers)
+    root = next(r for r in result.root_gaps if r.failed_concept_id == "backpropagation")
+    assert root.concept_id == "chain_rule"
+    assert root.path == ["chain_rule", "backpropagation"]
+    assert "Chain Rule" in root.explanation and "Backpropagation" in root.explanation
+    assert result.careless_slips == ["gradient_descent"]
+    assert [topic.concept_id for topic in result.next_topics] == [
+        "chain_rule", "backpropagation", "gradient_descent",
+    ]
+
+
+def test_b5_duplicate_responses_count_once(demo):
+    graph, quiz, answers = demo
+    expected = assess(graph, quiz, answers)
+    result = assess(graph, quiz, answers + [answers[0]])
+    assert result == expected
+
+
+def test_b5_uses_the_last_response_to_a_question(demo):
+    graph, quiz, answers = demo
+    question = next(q for q in quiz.questions if q.id == answers[0].question_id)
+    latest = answers[0].model_copy(update={"choice_index": (question.answer_index + 1) % 4})
+    expected = assess(graph, quiz, [latest] + answers[1:])
+    result = assess(graph, quiz, answers + [latest])
+    assert result == expected
+
+
+@pytest.mark.parametrize("answer_mode", ["demo", "all_correct", "empty"])
+def test_b5_real_api_uses_submitted_answers(demo, monkeypatch, answer_mode):
+    graph, quiz, answers = demo
+    graph = graph.model_copy(update={"id": "b5_graph"})
+    quiz = quiz.model_copy(update={"quiz_id": "b5_quiz", "graph_id": graph.id})
+    if answer_mode == "all_correct":
+        by_id = {question.id: question for question in quiz.questions}
+        answers = [
+            answer.model_copy(update={"choice_index": by_id[answer.question_id].answer_index})
+            for answer in answers
+        ]
+    elif answer_mode == "empty":
+        answers = []
+    monkeypatch.setattr(settings, "mock_learner", False)
+    monkeypatch.setattr(embeddings, "_HISTORY", {})  # B7 keeps per-graph history in memory
+    monkeypatch.setitem(store.graphs, graph.id, graph)
+    monkeypatch.setitem(store.quizzes, quiz.quiz_id, quiz)
+    app = FastAPI()
+    app.include_router(assess_router, prefix="/api")
+    with TestClient(app) as client:
+        response = client.post("/api/assess", json={
+            "quiz_id": quiz.quiz_id,
+            "answers": [answer.model_dump() for answer in answers],
+        })
+    assert response.status_code == 200
+    result = response.json()
+    # B7: the API also blends untested concepts' p_known (fresh history here); rest is assess().
+    monkeypatch.setattr(embeddings, "_HISTORY", {})
+    expected = embeddings.apply_history(graph, assess(graph, quiz, answers))
+    assert result == expected.model_dump(mode="json")
+    assert result["score"] == {
+        "correct": 5 if answer_mode == "demo" else len(answers), "total": len(answers),
+    }
+    if answer_mode == "demo":
+        assert result["careless_slips"] == ["gradient_descent"]
+        assert result["next_topics"][0]["concept_id"] == "chain_rule"
+    else:
+        assert result["root_gaps"] == [] and result["careless_slips"] == []
 
 
 def test_b4_path_orders_root_first_and_careless_last(demo):

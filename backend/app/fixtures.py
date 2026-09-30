@@ -4,7 +4,7 @@ import json
 from functools import cache
 
 from app.config import FIXTURES_DIR
-from app.models import Answer, AssessmentResult, Graph, QuizKey
+from app.models import Answer, AssessmentResult, Graph, NextQuestion, QuizKey
 
 
 def _load(name: str) -> dict:
@@ -30,3 +30,7 @@ def sample_answers() -> list[Answer]:
 
 def sample_assessment() -> AssessmentResult:
     return AssessmentResult.model_validate(_load("sample_assessment.json"))
+
+
+def sample_next_question() -> NextQuestion:
+    return NextQuestion.model_validate(_load("sample_next_question.json"))

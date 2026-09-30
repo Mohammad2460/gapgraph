@@ -3,10 +3,11 @@
 from fastapi import APIRouter, HTTPException
 
 from app.config import settings
-from app.fixtures import sample_assessment, sample_graph
+from app.fixtures import sample_assessment, sample_graph, sample_next_question
+from app.learner.adaptive import next_question
 from app.learner.embeddings import apply_history
 from app.learner.service import assess
-from app.models import AssessmentResult, AssessRequest
+from app.models import AssessmentResult, AssessRequest, NextQuestion, NextQuestionRequest
 from app.store import store
 
 router = APIRouter()
@@ -26,3 +27,18 @@ async def assess_quiz(req: AssessRequest) -> AssessmentResult:
         result.quiz_id, result.graph_id = quiz.quiz_id, graph.id
         return result
     return apply_history(graph, assess(graph, quiz, req.answers))
+
+
+@router.post("/quiz/{quiz_id}/next", response_model=NextQuestion)
+async def adaptive_next(quiz_id: str, req: NextQuestionRequest) -> NextQuestion:
+    """B6 adaptive probing: after a miss, ask about the failed concept's weakest prerequisite."""
+    quiz = store.quizzes.get(quiz_id)
+    if quiz is None:
+        raise HTTPException(404, "Unknown quiz")
+    graph = sample_graph() if quiz.graph_id == "demo" else store.graphs.get(quiz.graph_id)
+    if graph is None:
+        raise HTTPException(404, "Unknown graph")
+
+    if settings.mock_learner:
+        return sample_next_question()
+    return next_question(graph, quiz, req.answers)
