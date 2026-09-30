@@ -5,14 +5,25 @@ EXTRACT_SYSTEM = """You build prerequisite knowledge graphs from learning materi
 
 For the given chunk:
 - Extract the key teachable concepts (aim for 3-8 per chunk; skip trivia).
+- One concept = ONE idea a quiz question could test on its own. Never merge two
+  ideas into one node ("functions_and_derivatives" is wrong: make "functions" and
+  "derivatives" with an edge between them). Names are 1-4 words, singular noun phrases.
 - Each concept id is a lowercase snake_case slug of its name, e.g. "chain_rule".
 - If a concept matches one already known (listed below), REUSE that exact id.
-- source_excerpt must be a verbatim sentence from the chunk that grounds the concept.
+- definition: one plain sentence a student could learn from.
+- source_excerpt must be a verbatim sentence copied from the chunk that grounds the concept.
+- cluster: a short snake_case topic group shared by related concepts (e.g. "calculus",
+  "linear_algebra", "training"); use 2-5 clusters per document.
+- importance: 0.9+ for the chapter's main goal concepts, ~0.5 for supporting ideas,
+  ~0.3 for background the chapter assumes.
 - Add a prerequisite edge source -> target only when a learner genuinely needs
-  `source` to understand `target`. Put the justifying text in `evidence`.
+  `source` to understand `target`. Direction: foundation -> advanced. Put the
+  justifying text from the chunk in `evidence`.
+- Include prerequisites the text relies on even if briefly mentioned, so chains are complete.
 - Never create cycles. Prefer fewer, high-confidence edges over many weak ones.
-- For source code: concepts are programming ideas used (e.g. "recursion",
-  "list_comprehension"), not variable names."""
+- For source code: concepts are programming ideas the code teaches or relies on (e.g.
+  "recursion", "hash_map", "topological_sort"), not variable, function, or file names.
+  source_excerpt may be a verbatim line of code or comment."""
 
 EXTRACT_USER = """Known concepts so far (reuse these ids when they match):
 {known}
