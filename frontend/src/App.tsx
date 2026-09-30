@@ -96,16 +96,23 @@ export default function App() {
               Upload a chapter to build its knowledge graph
             </div>
           )}
-          {phase === 'building' && stream.status && !graphReady && (
+          {phase === 'building' && !graphReady && !stream.error && (
             <div className="absolute inset-x-0 top-0">
               <div className="h-1 bg-slate-200">
                 <div
                   className="h-1 bg-red-500 transition-all duration-300"
-                  style={{ width: `${Math.round(stream.status.progress * 100)}%` }}
+                  style={{ width: `${Math.round((stream.status?.progress ?? 0) * 100)}%` }}
                 />
               </div>
               <div className="ml-3 mt-2 inline-block rounded bg-white/90 px-3 py-1 text-sm shadow">
-                {stream.status.message} · {Math.round(stream.status.progress * 100)}%
+                {stream.status
+                  ? `${stream.status.message} · ${Math.round(stream.status.progress * 100)}%`
+                  : 'Starting…'}
+                {stream.slow && (
+                  <span className="block text-xs text-slate-500">
+                    Still working — the first response from Claude can take a few seconds.
+                  </span>
+                )}
               </div>
             </div>
           )}
@@ -113,10 +120,21 @@ export default function App() {
 
         <aside className="w-96 space-y-4 overflow-y-auto border-l border-slate-200 p-4">
           {(error || stream.error) && (
-            <div className="rounded bg-red-50 p-2 text-sm text-red-700">{error || stream.error}</div>
+            <div role="alert" className="space-y-2 rounded bg-red-50 p-2 text-sm text-red-700">
+              <div>{error || stream.error}</div>
+              {phase === 'building' && (
+                <button onClick={() => {
+                    setError(null)
+                    stream.reset()
+                    setPhase('upload')
+                  }} className="font-medium underline">
+                  Try again
+                </button>
+              )}
+            </div>
           )}
 
-          {(phase === 'upload' || phase === 'building') && <UploadPanel busy={busy || (phase === 'building' && !graphReady)} onSubmit={upload} />}
+          {(phase === 'upload' || phase === 'building') && <UploadPanel busy={busy || (phase === 'building' && !graphReady && !stream.error)} onSubmit={upload} />}
 
           {graphReady && phase !== 'quiz' && phase !== 'results' && (
             <button onClick={startQuiz} disabled={busy} className="w-full rounded-lg bg-red-600 py-2 font-medium text-white disabled:opacity-40">
