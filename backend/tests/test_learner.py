@@ -6,7 +6,7 @@ Remove the xfail marker on a test once its task is done; `make test` must stay g
 import pytest
 
 from app.fixtures import sample_answers, sample_graph, sample_quiz_key
-from app.learner.careless import classify_careless
+from app.learner.careless import careless_score, classify_careless
 from app.learner.gaps import find_root_gaps
 from app.learner.mastery import bkt_update, estimate_mastery
 from app.learner.path import suggest_next_topics
@@ -127,13 +127,82 @@ def test_b2_uses_weak_prerequisites(demo, prereq_status, p_known, expected_root)
     assert roots[0].explanation
 
 
-@pytest.mark.xfail(reason="TODO B3", raises=NotImplementedError, strict=True)
 def test_b3_gradient_descent_is_careless(demo):
     graph, quiz, answers = demo
     m = estimate_mastery(graph, quiz.questions, answers)
     careless = classify_careless(graph, quiz.questions, answers, m)
     assert careless == ["gradient_descent"]  # fast + confident + prereqs mastered
     assert m["chain_rule"].status == "gap"  # slow + unsure -> real gap
+    assert m["gradient_descent"].status == "careless"
+    assert m["gradient_descent"].p_known >= 0.5
+    assert m["gradient_descent"].evidence_count == 1
+    roots = find_root_gaps(graph, m)
+    assert all(root.failed_concept_id != "gradient_descent" for root in roots)
+    assert next(
+        root.concept_id for root in roots if root.failed_concept_id == "backpropagation"
+    ) == "chain_rule"
+
+
+def test_b3_score_uses_prerequisites_confidence_and_speed(demo):
+    graph, quiz, answers = demo
+    mastery = estimate_mastery(graph, quiz.questions, answers)
+    question = next(q for q in quiz.questions if q.concept_id == "gradient_descent")
+    answer = next(a for a in answers if a.question_id == question.id)
+    prereqs = {edge.source for edge in graph.edges if edge.target == question.concept_id}
+    for concept_id in prereqs:
+        mastery[concept_id] = mastery[concept_id].model_copy(update={
+            "p_known": 0.9, "status": "mastered",
+        })
+    baseline = careless_score(graph, question, answer, mastery, 10000)
+    assert 0.6 <= baseline <= 1
+    for changes in ({"confidence": 0.1}, {"time_ms": 20000}, {"time_ms": None}):
+        score = careless_score(graph, question, answer.model_copy(update=changes), mastery, 10000)
+        assert 0 <= score < baseline
+    weak_mastery = dict(mastery)
+    for concept_id in prereqs:
+        weak_mastery[concept_id] = mastery[concept_id].model_copy(update={
+            "p_known": 0.1, "status": "gap",
+        })
+    assert careless_score(graph, question, answer, weak_mastery, 10000) < 0.6
+    correct = answer.model_copy(update={"choice_index": question.answer_index})
+    assert careless_score(graph, question, correct, mastery, 10000) == 0
+
+
+@pytest.mark.parametrize("other_correct", [True, False])
+def test_b3_uses_other_answers_on_the_same_concept(demo, other_correct):
+    graph, quiz, answers = demo
+    question = next(q for q in quiz.questions if q.concept_id == "gradient_descent")
+    answer = next(a for a in answers if a.question_id == question.id)
+    repeat = question.model_copy(update={"id": "gd_repeat"})
+    questions = quiz.questions + [repeat]
+    answers = answers + [answer.model_copy(update={
+        "question_id": repeat.id,
+        "choice_index": question.answer_index if other_correct else answer.choice_index,
+    })]
+    mastery = estimate_mastery(graph, questions, answers)
+
+    careless = classify_careless(graph, questions, answers, mastery)
+    assert careless == (["gradient_descent"] if other_correct else [])
+    assert mastery["gradient_descent"].status == ("careless" if other_correct else "gap")
+
+
+def test_b3_classification_is_independent_of_answer_order(demo):
+    graph, quiz, answers = demo
+    forward = estimate_mastery(graph, quiz.questions, answers)
+    backward = {concept_id: value.model_copy() for concept_id, value in forward.items()}
+    assert classify_careless(graph, quiz.questions, answers, forward) == ["gradient_descent"]
+    assert classify_careless(graph, quiz.questions, list(reversed(answers)), backward) == [
+        "gradient_descent",
+    ]
+    assert forward == backward
+
+
+def test_b3_empty_answers_leave_mastery_unchanged(demo):
+    graph, quiz, _ = demo
+    mastery = estimate_mastery(graph, quiz.questions, [])
+    before = {concept_id: value.model_copy() for concept_id, value in mastery.items()}
+    assert classify_careless(graph, quiz.questions, [], mastery) == []
+    assert mastery == before
 
 
 @pytest.mark.xfail(reason="TODO B4", raises=NotImplementedError, strict=True)
