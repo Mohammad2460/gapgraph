@@ -7,6 +7,7 @@ import { Legend } from './components/Legend'
 import { NodeDetail } from './components/NodeDetail'
 import { QuizPanel } from './components/QuizPanel'
 import { ResultsPanel } from './components/ResultsPanel'
+import { TeacherView } from './components/TeacherView'
 import { UploadPanel } from './components/UploadPanel'
 import { useGraphStream } from './hooks/useGraphStream'
 import type { Answer, AssessmentResult, Quiz } from './types'
@@ -22,6 +23,7 @@ export default function App() {
   const [selected, setSelected] = useState<string | null>(null)
   const [activeGap, setActiveGap] = useState(0)
   const [error, setError] = useState<string | null>(null)
+  const [teacher, setTeacher] = useState(false)
 
   const mastery = useMemo(
     () => (result ? Object.fromEntries(result.mastery.map((m) => [m.concept_id, m])) : undefined),
@@ -86,6 +88,9 @@ export default function App() {
         </div>
         <div className="flex items-center gap-4">
           <Legend clusters={result || Object.keys(clusters).length === 0 ? undefined : clusters} />
+          <button onClick={() => setTeacher((t) => !t)} className="rounded border border-slate-300 px-2 py-0.5 text-xs hover:bg-slate-100">
+            {teacher ? 'Learner view' : 'Teacher view'}
+          </button>
           {phase !== 'upload' && (
             <button onClick={reset} className="rounded border border-slate-300 px-2 py-0.5 text-xs hover:bg-slate-100">
               Start over
@@ -95,6 +100,9 @@ export default function App() {
         </div>
       </header>
 
+      {teacher ? (
+        <TeacherView />
+      ) : (
       <main className="flex min-h-0 flex-1 flex-col overflow-y-auto md:flex-row md:overflow-hidden">
         <section className="relative h-[50vh] min-w-0 shrink-0 bg-slate-50 md:h-auto md:flex-1">
           {stream.concepts.length > 0 ? (
@@ -201,6 +209,7 @@ export default function App() {
           )}
         </aside>
       </main>
+      )}
     </div>
   )
 }

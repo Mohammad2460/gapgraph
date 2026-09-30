@@ -9,6 +9,8 @@ interface Props {
   concepts: Concept[]
   edges: Edge[]
   mastery?: Record<string, ConceptMastery>
+  /** Teacher view: 0..1 share of learners weak on each concept, drawn green -> red. */
+  heat?: Record<string, number>
   highlightPath?: string[] // root -> failed, drawn in red
   selectedId?: string | null
   /** Change this value to re-fit the whole graph in view (e.g. when streaming is done). */
@@ -26,6 +28,13 @@ type Node = {
 }
 type Link = { source: string | Node; target: string | Node; key: string }
 
+// green (0) -> yellow (0.5) -> red (1); grey when nobody was tested.
+function heatColor(v: number | undefined): string {
+  if (v === undefined) return STATUS_COLOR.untested
+  const hue = 120 - 120 * Math.min(1, Math.max(0, v))
+  return `hsl(${hue}, 75%, 48%)`
+}
+
 const POP_MS = 400
 const easeOutBack = (t: number) => 1 + 2.7 * Math.pow(t - 1, 3) + 1.7 * Math.pow(t - 1, 2)
 
@@ -33,6 +42,7 @@ export function GraphView({
   concepts,
   edges,
   mastery,
+  heat,
   highlightPath = [],
   selectedId,
   fitSignal = 0,
@@ -112,7 +122,9 @@ export function GraphView({
           const grow = easeOutBack(t)
 
           const m = mastery?.[node.id]
-          const fill = m
+          const fill = heat
+            ? heatColor(heat[node.id])
+            : m
             ? STATUS_COLOR[m.status]
             : node.cluster
               ? (colors[node.cluster] ?? NO_CLUSTER_COLOR)
